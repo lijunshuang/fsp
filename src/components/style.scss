@@ -1,0 +1,32 @@
+header{
+    height: 70px;
+    line-height: 70px;
+    font-size: 20px;
+    padding-left: 20px;
+    background-color: #fff;
+    box-shadow:0px 5px 20px 0px rgba(177,197,255,0.12);
+}
+.header_right{
+    float: right;
+    padding:0px 20px 0px 0px;font-size: 14px;
+    &>span{padding-right: 10px;margin-left:10px;}
+    .avatar{
+        margin-right: 10px;
+        .ant-avatar{margin-right: 5px;}
+    }
+    a{
+        color:#555;margin-left:5px;position: relative;top: -1px;
+        svg{width: 1.5em;height:1.5em;position: relative;top:3px;}
+    }
+}
+.nav_path{
+    // background: #eee;
+    padding:15px 20px;
+    color:#6B798E;
+    span{
+        color: #A9ACB1;
+    }
+}
+
+
+
