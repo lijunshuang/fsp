@@ -20,7 +20,17 @@ const { Paragraph } = Typography;
 const OverviewOption = (value: any) => {
   const option = {
     tooltip: {},
-    legend: {},
+    legend: {
+      bottom: 10,
+      borderRadius: '50%'
+    },
+    grid: {
+      top: "10px",
+      left: "0%",
+      right: "0",
+      bottom: "3%",
+      containLabel: true
+    },
     radar: {
       name: {
           textStyle: {
@@ -629,7 +639,7 @@ class riskProfile extends Component<any, any> {
           {
             title: "内幕交易中信被证监会处罚3.12亿元",
             date:"2019.03.12",
-            score:0
+            score:60
           },
           {
             title: "内幕交易中信被证监会处罚3.12亿元内幕交易中信被证监会处罚",
@@ -1033,7 +1043,7 @@ class riskProfile extends Component<any, any> {
             >
               <ul className="img-list">
               {
-                  qycb.slice(0,5).map((item: any, idx: any) => <li key={idx}><img src={item.img} /><a href="#">{item.title}</a><time>{item.date}</time></li> )
+                  qycb.slice(0,5).map((item: any, idx: any) => <li key={idx}><a href="#"><img src={item.img} /></a><a href="#">{item.title}</a><time>{item.date}</time></li> )
               }
               </ul>
             </Card>

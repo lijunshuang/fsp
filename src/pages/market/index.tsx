@@ -1,4 +1,4 @@
-import { Card, Col, Form, Icon, Input, Row, Select, Tabs } from 'antd';
+import { Card, Col, Form, Icon, Input, Row, Select, Statistic, Tabs } from 'antd';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -13,66 +13,25 @@ function hasErrors(fieldsError: any) {
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
-const trade = ["所有","金融","地产","科技","农林牧渔"]//行业选项
-
+const trade = ["所有","房地产","金融","餐饮","环保","地产","科技","农林牧渔"]//行业选项
+const countIcon=['iconhome_today_finance','iconhome_today_company','iconhome_today_subscribe']
 //公告数量
 const count = [
   {
-    icon: "icon",
     title: "今日财务风险事件",
     number: 60
   },
   {
-    icon: "icon",
     title: "今日风险企业数",
     number: 50
   },
   {
-    icon: "icon",
-    title: "今日风险企业数",
+    title: "今日订阅企业财务风险数",
     number: 20
   }
 ];
 
-//本报告期行业风险榜
-const riskList = [
-  {
-    id: 1,
-    icon: "home",
-    title: "房地产",
-    number: 23
-  },
-  {
-    id: 2,
-    icon: "home",
-    title: "金融",
-    number: 45
-  },
-  {
-    id: 3,
-    icon: "home",
-    title: "餐饮",
-    number: 23
-  },
-  {
-    id: 4,
-    icon: "home",
-    title: "房地产",
-    number: 23
-  },
-  {
-    id: 5,
-    icon: "home",
-    title: "科技",
-    number: 23
-  },
-  {
-    id: 6,
-    icon: "home",
-    title: "房地产",
-    number: 23
-  }
-];
+
 
 const oneYear = {
   text: '指标：风险企业数',
@@ -124,7 +83,7 @@ const getOption = (value: any) => {
       type: 'category',
       axisLine: {
         lineStyle: {
-          color: "#6B798E",
+          color: "#7D92A7",
           fontSize:"12px",
         },
       },
@@ -133,8 +92,9 @@ const getOption = (value: any) => {
     yAxis: {
       type: 'value',
       axisLine: {
+        show: false,//不显示Y轴的竖线
         lineStyle: {
-          color: "#6B798E",
+          color: "#7D92A7",
           fontSize:"12px",
         },
       },
@@ -148,14 +108,22 @@ const getOption = (value: any) => {
       series: [{
         name:value.name,
         type: 'line',
-        lineStyle: { //线的样式
-          color: "#3D659A",
-          width: "4",
+        symbolSize: 8,   //折线点的大小
+        label: { //线上的文字
+          normal: {
+            show: true,
+            position: 'top'
+          }
         },
-        itemStyle: { //折线拐点处的样式
-          borderWidth: "4",
-          borderColor: "#3D659A",
-          shadowColor: '#F1F2FC',
+        // 折线颜色
+        itemStyle: {
+          normal: {
+              color: '#3D659A',
+              lineStyle: {
+                color: '#3D659A',
+                width:4
+              }
+          },
         },
         data: value.data,
     }]
@@ -171,11 +139,78 @@ function callback(key:any) {
   getOption(key)
 }
 
+
 class Home extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-     
+      data: {
+        //本报告期行业风险榜
+        riskList: [
+          {
+            id: 1,
+            title: "房地产",
+            icon:"iconhome_estate",
+            number: 23,
+          },
+          {
+            id: 2,
+            title: "金融",
+            icon:"iconhome_finance",
+            number: 45,
+          },
+          {
+            id: 3,
+            title: "餐饮",
+            icon:"iconhome_food",
+            number: 23,
+          },
+          {
+            id: 4,
+            title: "房地产",
+            icon:"iconhome_environment",
+            number: 23,
+          },
+          {
+            id: 5,
+            title: "科技",
+            icon:"iconhome_technique",
+            number: 23,
+          }
+        ],
+        financeList: [
+          {
+            id: 1,
+            title: "中信证券",
+            logo:"/images/zhongxin_logo.png",
+            number: 23,
+          },
+          {
+            id: 2,
+            title: "海通证券",
+            logo:"/images/pingan_logo.png",
+            number: 45,
+          },
+          {
+            id: 3,
+            title: "平安证券",
+            logo:"/images/haitong_logo.png",
+            number: 23,
+          },
+          {
+            id: 4,
+            title: "平安证券",
+            logo:"/images/zhongxin_logo.png",
+            number: 23,
+          },
+          {
+            id: 5,
+            title: "默认logo",
+            logo:"/images/default_logo.png",
+            number: 23,
+          }
+        ],
+      }
     }
   }
   componentDidMount() {
@@ -200,7 +235,7 @@ class Home extends Component<any, any> {
       getFieldsError
     } = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-
+    const {riskList, financeList} = this.state.data
     return (
       <div className="market">
         <div className="search">
@@ -226,7 +261,7 @@ class Home extends Component<any, any> {
             <Row className="count">
               {count.map((item: any, idx: any) => (
                 <Col span={8} key={idx}>
-                  <Icon type="smile" theme="twoTone" />
+                  <Icons type={countIcon[idx]} />
                   <span className="title">{item.title}</span>
                   <span className="number">{item.number}</span>
                 </Col>
@@ -279,7 +314,7 @@ class Home extends Component<any, any> {
                 {riskList.map((item: any, idx: any) => (
                   <li key={idx}>
                     <span className="id">{idx + 1}. </span>
-                    <Icon type={item.icon} />
+                    <Icons type={item.icon} />
                     <span className="title">{item.title}</span>
                     <span className="number">{item.number}</span>
                   </li>
@@ -292,13 +327,14 @@ class Home extends Component<any, any> {
               className="risk-list fchange-list"
             >
               <ul>
-                {riskList.map((item: any, idx: any) => (
+                {financeList.map((item: any, idx: any) => (
                   <li key={idx}>
                     <span className="id">{idx + 1}. </span>
-                    <Icon type={item.icon} />
+                    <img src={item.logo} />
                     <span className="title">{item.title}</span>
+                    
                     <span className="number">
-                      <Icon type="arrow-up" />
+                      <Icons type="iconhome_rank_increase" />
                       {item.number}%
                     </span>
                   </li>

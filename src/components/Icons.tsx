@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 const IconFont = Icon.createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/font_1137351_6orhia7r9t3.js',
+  scriptUrl: '//at.alicdn.com/t/font_1137351_kwbv4fen7fe.js',
 });
 
 export default class Icons extends React.Component<any, any>  {

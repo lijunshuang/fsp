@@ -63,7 +63,7 @@ button{
   //顶部搜索框
   .search{
     position: absolute;
-    top:15px;
+    top:12px;
     left:50%;
     width:50%;
     height:40px;
@@ -262,16 +262,16 @@ button{
       background:#fff;
       padding:55px 10px;
       .ant-col-8{
-        padding-left:24px;
+        padding-left:14px;
         border-right: 1px solid rgba(190,202,216,.3);
         &:last-child{border-right:0px}
       }
       i{
-        font-size: 96px;
+        font-size: 90px;
         float: left;
       }
       span{
-        margin-left:100px;
+        margin-left:90px;
         display: block
       }
       .title{
@@ -366,10 +366,10 @@ button{
         }
         .id{color:#6B798E;}
         i.anticon{
-          font-size: 30px;
+          font-size: 32px;
           position: relative;
-          top:3px;
-          margin:0px 20px 0px 10px;
+          top:4px;
+          margin:0px 10px 0px 10px;
           color:#6B798E;
         }
         .title{
@@ -384,11 +384,15 @@ button{
     .fchange-list{
       margin-top: $mt20;
       li{
+        img{
+          width: 30px;
+          margin: 0px 10px;
+        }
         .number{
           i.anticon{
             color:#E62129;
             font-size: 16px;
-            margin-right: 10px;
+            margin-right: 2px;
             top:0px;
           }
         }
@@ -780,7 +784,7 @@ button{
               .status{
                 float: right;
                 i{
-                  font-size: 22px;
+                  font-size: 18px;
                 }
                 .iconindicator_state_1{
                   color:#2FC25B;

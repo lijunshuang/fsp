@@ -8,14 +8,27 @@ header{
 }
 .header_right{
     float: right;
-    padding:0px 20px 0px 0px;font-size: 14px;
-    &>span{padding-right: 10px;margin-left:10px;}
+    padding:0px 20px 0px 0px;
+    font-size: 14px;
+
+    &>span{
+        padding-right: 10px;
+        margin-left:10px;
+    }
     .avatar{
         margin-right: 10px;
         .ant-avatar{margin-right: 5px;}
     }
     a{
-        color:#555;margin-left:5px;position: relative;top: -1px;
+        color:#555;
+        margin-left:5px;
+        position: relative;
+        top: -1px;
+        i{
+            font-size: 20px;
+            position: relative;
+            top: 4px;
+        }
         svg{width: 1.5em;height:1.5em;position: relative;top:3px;}
     }
 }

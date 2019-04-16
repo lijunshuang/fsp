@@ -4,6 +4,8 @@ import { Avatar, Icon, Layout, Menu } from 'antd';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
+import Icons from '../components/Icons';
+
 const { Sider } = Layout
 const { Item } = Menu
 const logo = '/logo.png'
@@ -47,7 +49,7 @@ export default class Header extends React.Component<any, any> {
                             <Avatar>USER</Avatar>
                             Hello, {username}
                         </span>
-                        <a href="javascript:;"><Icon type="poweroff" /> 退出</a>
+                        <a href="javascript:;"><Icons type='iconlogout' /> 退出</a>
                     </div>
                 </header>
                 <div className="nav_path">

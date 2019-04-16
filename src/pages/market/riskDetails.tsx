@@ -53,6 +53,7 @@ const trendOption = (value: any) => {
     yAxis: {
       type: "value",
       axisLine: {
+        show:false,
         lineStyle: {
           color: "#6B798E",
           fontSize: "12px"
@@ -203,39 +204,39 @@ const scoreOption = (value: any) => {
         type: 'gauge',
         detail: { formatter: '{value}' },
         data: [{ value: value.score, name: value.name }],
+        axisTick:{
+          show:false,//不显示刻度线
+        },
         splitLine: {           // 分隔线
-          length: 10,         // 属性length控制线长
-          lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
-              color: 'auto'
-          }
+          length: 11,         // 属性length控制线长
+          show:false,         //不显示分割线
         },
         axisLine: {
           lineStyle: {
             width:10,
             color: [
-              [0.3, new echarts.graphic.LinearGradient(1, 0, 1, 1, [
+              [
+                1, new echarts.graphic.LinearGradient(0, 1, 1, 1, [
                 {
-                offset: 1,
-                color: "#E62129",// 0% 处的颜色
+                  offset: 0,
+                  color: "rgba(245,67,0,1)",// 0% 处的颜色
+                },{
+                  offset: 0.6,
+                  color: "rgba(248,202,0,1)" // 50% 处的颜色
+                },{
+                  offset: 1,
+                  color: "rgba(0,200,140,1)" // 100% 处的颜色
                 }
-              ], false)],
-              [0.7, new echarts.graphic.LinearGradient(0, 0, 1, 1, [
-                {
-                offset: 0,
-                color: "#FFAB2D" // 0% 处的颜色
-                }
-              ], false)],
-              [1, new echarts.graphic.LinearGradient(1, 0, 1, 1, [{
-                offset: 0,
-                color: "#2FC25B" // 0% 处的颜色
-              },
-              {
-                offset: 1,
-                color: "#2FC25B" // 100% 处的颜色
-              }], false)]
+              ],false)
+              ], 
             ]
           },
-        }
+          splitLine:{
+            //分割线样式相关
+            show:false,
+            length:15,
+          },
+        },
       }
     ]
   };
@@ -243,6 +244,7 @@ const scoreOption = (value: any) => {
 }
 //他比中 的 毛利率
 const differRateOption = (value: any) => {
+
   let data = value.dataArr
   const color = ["#1890FF","#B53ECE","#6B798E"]
   const option = {
@@ -290,24 +292,19 @@ const differRateOption = (value: any) => {
         }
       }
     },
+    color:color,//线的颜色
     series: (function () { 
       let arr:any = []
       data.forEach((item:any,idx:any) => {
         arr.push({
           ...item,
           symbolSize: 8,
-          lineStyle: {
-            //线的样式
-            color: color[idx],
-          },
-          // 折线颜色
+          // 折线样式
           itemStyle: {
             normal: {
-                color: color[idx],
-                lineStyle: {
-                  color: color[idx],
-                  width:3
-                }
+              lineStyle: {
+                width:3
+              }
             },
           },
         })
@@ -343,11 +340,11 @@ function getColor(value: any) {
 function getIdx(value: any) { 
   let idx
   if (value > 0 && value <= 40) {
-    idx = '一般指标'
+    idx = '一般'
   } else if (value > 40 && value <= 70) {
-    idx = '重要指标'
+    idx = '重要'
   } else if (value > 70 && value <= 100) { 
-    idx = '核心指标'
+    idx = '核心'
   }
   return idx
 }
@@ -628,12 +625,12 @@ class riskDetails extends Component<any, any> {
   // 根据状态判断显示什么图标
   tips = (value: any) => { 
     if (value) {
-      return <div className="aaa"><Tooltip placement="topLeft" title="1.利润结构不合理，经营性利润低，投资性利润高 2.利润同比大幅下滑">
-      <Icons type='iconindicator_state_1' className='iconindicator_state_1' />
+      return <div className="aaa"><Tooltip placement="topLeft" overlayClassName="tips-bg" title="1.利润结构不合理，经营性利润低，投资性利润高 2.利润同比大幅下滑">
+      <Icon type="exclamation-circle" className='red' />
     </Tooltip></div>
     } else { 
       return <Tooltip placement="topLeft" overlayClassName="tips-bg" title="1.利润同比大幅上升">
-      <Icons type='iconindicator_state_' className='iconindicator_state_' />
+      <Icon type="check-circle" className='green' />
     </Tooltip>
     }
   }
