@@ -1,7 +1,9 @@
 import { Card, Col, Divider, Form, Icon, Input, Row, Select, Statistic, Tabs } from 'antd';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+import { getData } from '../../actions';
 import EchartsWrapper from '../../components/EchartsWrapper';
 import Icons from '../../components/Icons';
 
@@ -14,24 +16,6 @@ const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
 const trade = ["所有","房地产","金融","餐饮","环保","地产","科技","农林牧渔"]//行业选项
-const countIcon=['iconhome_today_finance','iconhome_today_company','iconhome_today_subscribe']
-//公告数量
-const count = [
-  {
-    title: "今日财务风险事件",
-    number: 60
-  },
-  {
-    title: "今日风险企业数",
-    number: 50
-  },
-  {
-    title: "今日订阅企业财务风险数",
-    number: 20
-  }
-];
-
-
 
 const oneYear = {
   text: '指标：风险企业数',
@@ -226,16 +210,34 @@ class Home extends Component<any, any> {
       }
     });
   };
- 
+  //公告数量
+  count = () => (
+    [
+      {
+        title: "今日财务风险事件",
+        number: this.props.results.today_event_count || 0,
+        icon:"iconhome_today_finance"
+      },
+      {
+        title: "今日风险企业数",
+        number: this.props.results.today_company_count || 0,
+        icon:"iconhome_today_company"
+      },
+      {
+        title: "今日订阅企业财务风险数",
+        number: this.props.results.today_subscribed_event || 0,
+        icon:"iconhome_today_subscribe"
+      }
+    ]
+  ) 
   render() {
-    const {
-      getFieldDecorator,
-      isFieldTouched,
-      getFieldError,
-      getFieldsError
-    } = this.props.form;
+    console.log(this.props.results)
+
+    const {getFieldDecorator,isFieldTouched,getFieldError,getFieldsError} = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-    const {riskList, financeList} = this.state.data
+    const { riskList, financeList } = this.state.data
+    const { today_event_count, today_company_count, today_subscribed_event, company_risk_rank, industry_risk_rank } = this.props.results
+
     return (
       <div className="market">
         <div className="search">
@@ -257,12 +259,12 @@ class Home extends Component<any, any> {
           </Form>
         </div>
         <Row gutter={20}>
-          <Col span={18}>
+          <Col md={15} lg={16} xl={17}>
             <Row className="count">
-              {count.map((item: any, idx: any) => (
+              {this.count().map((item: any, idx: any) => (
                 <Col span={8} key={idx}>
                   <Row gutter={0}>
-                    <Col span={8}><Icons type={countIcon[idx]} /></Col>
+                    <Col span={8}><Icons type={item.icon} /></Col>
                     <Col span={16}>
                       <span className="title">{item.title}</span>
                       <span className="number">{item.number}</span>
@@ -309,7 +311,7 @@ class Home extends Component<any, any> {
             </Card>
           </Col>
 
-          <Col span={6}>
+          <Col md={9} lg={8} xl={7}>
             <Card
               title="本报告期行业风险榜"
               bordered={false}
@@ -353,4 +355,11 @@ class Home extends Component<any, any> {
   }
 }
 const WrapSearch = Form.create()(Home);
-export default WrapSearch;
+const mapStateProps = (state: any) => {
+  return {
+    results: state.riskEvents.results,
+  }
+}
+const mapDispatchToProps = {getData}
+export default connect(mapStateProps,mapDispatchToProps)(WrapSearch)
+

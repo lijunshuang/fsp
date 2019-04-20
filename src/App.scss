@@ -21,6 +21,8 @@ $fz32: 3.2rem;
 $fz34: 3.4rem;
 $fz36: 3.6rem;
 $fz40: 4rem;
+$fz80: 8rem;
+$fz90: 9rem;
 
 /*清除浮动代码*/
 .clearfloat:after{display:block;clear:both;content:" ";visibility:hidden;height:0}
@@ -106,6 +108,7 @@ button{
       background:#F6F6F8;
       border: 0px;
       height: 40px;
+      font-size: $fz14;
     }
     button{
       width:90px;
@@ -117,6 +120,7 @@ button{
       border-radius:0px 2px 2px 0px;
       position: relative;
       top: 2px;
+      font-size: $fz14;
     }
   }
   .ant-select{
@@ -124,8 +128,9 @@ button{
   }
   // 重新antd的 card 组件样式
   .ant-card{
+    font-size: $fz14;
     .ant-card-head{
-      padding:0px 4rem 0px 5rem;
+      padding:0px 4rem 0px 4rem;
       border-bottom: 0;
       font-size: $fz16;
       .ant-card-head-title{
@@ -142,6 +147,7 @@ button{
       }
       .ant-card-extra{
         padding:20px 0px 0px;
+        font-size: $fz14;
         a{
           color:#3E74CA;
           position: relative;
@@ -178,6 +184,7 @@ button{
         }
       }
       .ant-table{
+        font-size: $fz14;
         .ant-table-body{
           .ant-table-thead{
             tr{
@@ -196,7 +203,7 @@ button{
                 // border-color: #BEC8D3;
                 text-align: center;
                 span{
-                  i{font-size:20px;}
+                  i{font-size:$fz20;}
                 }
               }
             }
@@ -310,7 +317,7 @@ button{
         }
       }
       i{
-        font-size: 9rem;
+        font-size: $fz90;
         float: left;
       }
       span{
@@ -319,10 +326,10 @@ button{
       }
       .title{
         color:#6B798E;
-        font-size:1.8rem;
+        font-size:$fz18;
       }
       .number{
-        font-size: 4.8rem;
+        font-size: $fz40;
         color:#3A3B46;
       }
     }
@@ -573,17 +580,17 @@ button{
             }
             .ant-tabs-content{
               .ant-tabs-tabpane{
-                display: flex;
+                // display: flex;
 
               }
             }
             .radar{
-              width:45%;
-              flex: 1;
+              // flex: 1;
             }
             .radar-right{
-              flex: 1;
-              margin-left:2%;
+              // width:55%;
+              // flex: 1;
+              // margin-left:2%;
               padding:10px 40px;
               box-shadow:0px 5px 24px 0px rgba(0,66,166,0.05);
               margin-top: 20px;
@@ -669,7 +676,7 @@ button{
                     display: inline-block;
                   }
                   .title{
-                    width:75px;
+                    width:65px;
                     color:#6B798E;
                   }
                   .value{color:#3A3B46;}
@@ -882,6 +889,9 @@ button{
     
   }
 
+  .ant-tabs,.ant-tabs-nav-container{
+    font-size: $fz14;
+  }
 }
 
 //登录页 
@@ -1037,14 +1047,14 @@ button{
 
 
 
-@media(max-width:1600px){ 
-  html { 
-    font-size:52.5%; 
-  } 
-}
+// @media(max-width:1600px){ 
+//   html { 
+//     font-size:52.5%; 
+//   } 
+// }
 @media(max-width:1400px){ 
   html { 
-    font-size:46.5%; 
+    font-size:54.5%; 
   }
   $m20 : 1.6rem;
   $m10 : 1rem;
@@ -1073,43 +1083,131 @@ button{
     }
   }
 }
-@media(max-width:1366px){ 
-  html { 
-    font-size:42.5%; 
-  } 
-}
-@media(max-width:1280px){ 
-  html { 
-    font-size:38%; 
-  }
+// @media(max-width:1366px){ 
+//   html { 
+//     font-size:42.5%; 
+//   } 
+// }
+// @media(max-width:1280px){ 
+//   html { 
+//     font-size:38%; 
+//   }
 
+//   .ant-layout{
+
+//     .ant-card {
+//       .ant-card-head{
+//         padding:0px 3rem 0px 3rem;
+//       }
+//       .ant-card-body {
+//         padding: 0px 2.2rem 1.6rem;
+//       }
+//     }
+     
+//     .market{
+//       .fchange-list{
+//         li{
+//           img{
+//             width:2rem
+//           }
+//         }
+//       }
+//     }
+//   }
+
+// }
+@media(max-width:1200px){ 
+  html { 
+    font-size:46%; 
+  }
   .ant-layout{
 
-    .ant-card {
-      .ant-card-head{
-        padding:0px 3rem 0px 3rem;
-      }
-      .ant-card-body {
-        padding: 0px 2.2rem 1.6rem;
+
+    .search{
+      width:40%;
+      left:55%;
+
+    }
+
+    .market{
+      .count{
+        i{font-size: 7rem;}
+        .title{
+          height:38px;
+          width: 80%;
+          font-size: $fz16;
+        }
+        
       }
     }
-     
-    .market{
-      .fchange-list{
-        li{
-          img{
-            width:2rem
+
+    .ant-card{
+      .ant-card-head{
+       
+        .ant-card-head-title{
+          
+          &::before{
+            content:"";
+            width:3px;
+            height:14px;position: absolute;
+            margin:3px 0px 0px -10px;
+            background:#BEC8D3;
+          }
+        }
+      }
+    }
+    .ant-tabs {
+      .radar-right{
+        padding:10px 20px !important;
+        .top{
+          .top-item{
+            line-height: 32px !important;
+          }
+        }
+        .abilityList{
+
+          li{
+            width: 50% !important;
+            margin-top: 12px !important;
+            .title{
+              width:60px;
+            }
           }
         }
       }
     }
   }
-
+  .icongeneral_score{
+    top:1px !important;
+    font-size: $fz30;
+  }
 }
 @media(max-width:1080px){ 
   html { 
-    font-size:36%; 
-  } 
+    font-size:38%; 
+  }
+  .ant-layout{
+
+    .header_right a i{
+      top:0px;
+    }
+    .search{
+      // width:40%;
+      // left:55%;
+
+    }
+
+    .market{
+      .count{
+
+        // .title{
+        //   height:32px;
+        //   width: 80%;
+        // }
+      }
+    }
+  }
+
 }
 
 

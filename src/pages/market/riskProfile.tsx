@@ -780,13 +780,14 @@ class riskProfile extends Component<any, any> {
             <Card className="risk-gk" title="财务整体状况" bordered={false}>
               <Tabs defaultActiveKey="1" onChange={callback} className="tabs-car-absolute">
                 <TabPane tab="近 1 年" key="1">
-                  <div className="radar">
-                    <EchartsWrapper
-                      option={OverviewOption(Overview.oneYear)}
-                      style={{ height: 360 }}
-                    />
-                  </div>
-                  <div className="radar-right">
+                  <Row>
+                    <Col md={12} lg={12} xl={10} className="radar">
+                      <EchartsWrapper
+                        option={OverviewOption(Overview.oneYear)}
+                        style={{ height: 360 }}
+                      />
+                    </Col>
+                    <Col md={12} lg={12} xl={14} className="radar-right">
                     <div className="top clearfloat">
                       <div className="top-item">
                         <span>财务风险等级：</span>
@@ -817,89 +818,94 @@ class riskProfile extends Component<any, any> {
                     <div className="foot">
                       <a href="#" className="btn-more">查看详情</a>
                     </div>
-                  </div>
+                    </Col>
+                  </Row> 
                 </TabPane>
 
                 <TabPane tab="近 3 年" key="2">
-                <div className="radar">
-                    <EchartsWrapper
-                      option={OverviewOption(Overview.threeYear)}
-                      style={{ height: 360 }}
-                    />
-                  </div>
-                  <div className="radar-right">
-                    <div className="top clearfloat">
-                      <div className="top-item">
-                        <span>财务风险等级：</span>
-                        <span className="em-list">
-                          <em>{Overview.threeYear.grade <= 35 ? <i>无风险</i> : null}</em>
-                          <em>{Overview.threeYear.grade > 35 && Overview.threeYear.grade <= 70 ? <i>低风险</i> : null}</em>
-                          <em>{Overview.threeYear.grade > 70 ? <i>高风险</i> : null}</em>
-                        </span>
+                  <Row>
+                    <Col md={12} lg={12} xl={10} className="radar">
+                      <EchartsWrapper
+                        option={OverviewOption(Overview.threeYear)}
+                        style={{ height: 360 }}
+                      />
+                    </Col>
+                    <Col md={12} lg={12} xl={14} className="radar-right">
+                      <div className="top clearfloat">
+                        <div className="top-item">
+                          <span>财务风险等级：</span>
+                          <span className="em-list">
+                            <em>{Overview.threeYear.grade <= 35 ? <i>无风险</i> : null}</em>
+                            <em>{Overview.threeYear.grade > 35 && Overview.threeYear.grade <= 70 ? <i>低风险</i> : null}</em>
+                            <em>{Overview.threeYear.grade > 70 ? <i>高风险</i> : null}</em>
+                          </span>
+                        </div>
+                        <div className="top-item">
+                          <span>风险诊断：</span>
+                          <span className="oneEllipsis">{Overview.threeYear.diag}</span>
+                        </div>
+                        <div className="top-item">
+                          <span>财务综合评分：</span>
+                          <span>{80}</span>
+                        </div>
                       </div>
-                      <div className="top-item">
-                        <span>风险诊断：</span>
-                        <span className="oneEllipsis">{Overview.threeYear.diag}</span>
+                      <ul className="abilityList clearfloat">
+                        {
+                          Overview.threeYear.abilityList.map((item: any, key: any) => <li key={key}>
+                            <Icons type={item.icon_name} className={item.icon_name} />
+                            <span className="title">{item.title}: </span>
+                            <span className="value">{item.value}</span>
+                          </li>)
+                        }
+                      </ul>
+                      <div className="foot">
+                        <a href="#" className="btn-more">查看详情</a>
                       </div>
-                      <div className="top-item">
-                        <span>财务综合评分：</span>
-                        <span>{80}</span>
-                      </div>
-                    </div>
-                    <ul className="abilityList clearfloat">
-                      {
-                        Overview.threeYear.abilityList.map((item: any, key: any) => <li key={key}>
-                          <Icons type={item.icon_name} className={item.icon_name} />
-                          <span className="title">{item.title}: </span>
-                          <span className="value">{item.value}</span>
-                        </li>)
-                      }
-                    </ul>
-                    <div className="foot">
-                      <a href="#" className="btn-more">查看详情</a>
-                    </div>
-                  </div>
+                    </Col>
+                  </Row>
                 </TabPane>
 
                 <TabPane tab="近 5 年" key="3">
-                <div className="radar">
-                    <EchartsWrapper
-                      option={OverviewOption(Overview.fiveYear)}
-                      style={{ height: 360 }}
-                    />
-                  </div>
-                  <div className="radar-right">
-                    <div className="top clearfloat">
-                      <div className="top-item">
-                        <span>财务风险等级：</span>
-                        <span className="em-list">
-                          <em>{Overview.fiveYear.grade <= 35 ? <i>无风险</i> : null}</em>
-                          <em>{Overview.fiveYear.grade > 35 && Overview.fiveYear.grade <= 70 ? <i>低风险</i> : null}</em>
-                          <em>{Overview.fiveYear.grade > 70 ? <i>高风险</i> : null}</em>
-                        </span>
+                  <Row>
+                    <Col md={12} lg={12} xl={10} className="radar">
+                      <EchartsWrapper
+                        option={OverviewOption(Overview.fiveYear)}
+                        style={{ height: 360 }}
+                      />
+                    </Col>
+                    <Col md={12} lg={12} xl={14}  className="radar-right">
+                      <div className="top clearfloat">
+                        <div className="top-item">
+                          <span>财务风险等级：</span>
+                          <span className="em-list">
+                            <em>{Overview.fiveYear.grade <= 35 ? <i>无风险</i> : null}</em>
+                            <em>{Overview.fiveYear.grade > 35 && Overview.fiveYear.grade <= 70 ? <i>低风险</i> : null}</em>
+                            <em>{Overview.fiveYear.grade > 70 ? <i>高风险</i> : null}</em>
+                          </span>
+                        </div>
+                        <div className="top-item">
+                          <span>风险诊断：</span>
+                          <span className="oneEllipsis">{Overview.fiveYear.diag}</span>
+                        </div>
+                        <div className="top-item">
+                          <span>财务综合评分：</span>
+                          <span>{80}</span>
+                        </div>
                       </div>
-                      <div className="top-item">
-                        <span>风险诊断：</span>
-                        <span className="oneEllipsis">{Overview.fiveYear.diag}</span>
+                      <ul className="abilityList clearfloat">
+                        {
+                          Overview.fiveYear.abilityList.map((item: any, key: any) => <li key={key}>
+                            <Icons type={item.icon_name} className={item.icon_name} />
+                            <span className="title">{item.title}: </span>
+                            <span className="value">{item.value}</span>
+                          </li>)
+                        }
+                      </ul>
+                      <div className="foot">
+                        <a href="#" className="btn-more">查看详情</a>
                       </div>
-                      <div className="top-item">
-                        <span>财务综合评分：</span>
-                        <span>{80}</span>
-                      </div>
-                    </div>
-                    <ul className="abilityList clearfloat">
-                      {
-                        Overview.fiveYear.abilityList.map((item: any, key: any) => <li key={key}>
-                          <Icons type={item.icon_name} className={item.icon_name} />
-                          <span className="title">{item.title}: </span>
-                          <span className="value">{item.value}</span>
-                        </li>)
-                      }
-                    </ul>
-                    <div className="foot">
-                      <a href="#" className="btn-more">查看详情</a>
-                    </div>
-                  </div>
+                    </Col>
+                  </Row>
                 </TabPane>
               </Tabs>
             </Card>
