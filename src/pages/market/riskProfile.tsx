@@ -2,6 +2,7 @@ import {
     Button, Card, Col, Divider, Form, Icon, Input, Row, Select, Table, Tabs, Tooltip, Typography
 } from 'antd';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 import EchartsWrapper from '../../components/EchartsWrapper';
@@ -18,6 +19,11 @@ const { Paragraph } = Typography;
 //echart 配置项
 //财务整体概况--数据
 const OverviewOption = (value: any) => {
+  const name = [value.shor_name, '行业平均'] //获取 对比的名称
+  const indicator = value.company.company_score.map((item:any)=>item.name)
+  const arr = value.company.company_score.map((item:any)=>item.score)
+  const max = Math.max.apply(null,arr); //获取数组中的最大值
+  console.log(indicator)
   const option = {
     tooltip: {},
     legend: {
@@ -39,59 +45,62 @@ const OverviewOption = (value: any) => {
               padding: [3, 5]
           }
       },
-      indicator: [
-          { name: '盈利能力',max: 80},
-          { name: '偿债能力', max: 80},
-          { name: '现金流', max: 80},
-          { name: '运营能力', max: 80},
-          { name: '成长能力', max: 80},
-      ],
+      indicator: (function () { 
+        let arr:any = []
+        indicator.forEach((element:any) => {
+          arr.push({
+            name: element,
+            max
+          })
+        });
+        return arr
+      })()
     },
-    series: [{
-        name: '',
-        type: 'radar',
-        areaStyle: {
-            normal: {
-                opacity:0.4
-            }
-        },
-        data : [
-            {
-                value : value.data,
-                name : '中信股份',
-                itemStyle: {
-                  normal: {
-                    color: "#1890FF",
-                  }
-                },
-                label: {
-                    normal: {
-                        show: true,
-                        formatter:(params:any)=>{
-                            return params.value;
-                        }
-                    }
-                }
-            },
-             {
-                value : [50, 34, 50, 31, 42],
-                name : '行业平均',
-                itemStyle: {
-                  normal: {
-                    color: "#B53ECE",
-                  }
-                },
-                label: {
-                    normal: {
-                        show: true,
-                        formatter:(params:any)=>{
-                            return params.value;
-                        }
-                    }
-                }
-            }
-        ]
-    }]
+    // series: [{
+    //     name: '',
+    //     type: 'radar',
+    //     areaStyle: {
+    //         normal: {
+    //             opacity:0.4
+    //         }
+    //     },
+    //     data : [
+    //         {
+    //             value : value.data,
+    //             name : '中信股份',
+    //             itemStyle: {
+    //               normal: {
+    //                 color: "#1890FF",
+    //               }
+    //             },
+    //             label: {
+    //                 normal: {
+    //                     show: true,
+    //                     formatter:(params:any)=>{
+    //                         return params.value;
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //          {
+    //             value : [50, 34, 50, 31, 42],
+    //             name : '行业平均',
+    //             itemStyle: {
+    //               normal: {
+    //                 color: "#B53ECE",
+    //               }
+    //             },
+    //             label: {
+    //                 normal: {
+    //                     show: true,
+    //                     formatter:(params:any)=>{
+    //                         return params.value;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     ]
+    // }]
 };
   return option;
 };
@@ -395,8 +404,8 @@ function getColor(value: any) {
 const columns = [
   {
     title: '指标',
-    dataIndex: 'norm',
-    key: 'norm',
+    dataIndex: 'name',
+    key: 'name',
   }, {
     title: '行业排名',
     dataIndex: 'rank',
@@ -407,7 +416,7 @@ const columns = [
     key: 'status',
     render: (text:any) =>
       <span>{
-        !text ?
+        text == 'risk' ?
           <Tooltip placement="topLeft" overlayClassName="tips-bg" title="1.利润结构不合理，经营性利润低，投资性利润高 2.利润同比大幅下滑">
           <Icon type="exclamation-circle" className='red' />
         </Tooltip>
@@ -424,6 +433,7 @@ class riskProfile extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
+      scoreTitle:"评分",
       data: {
         company: {
           logo: "/images/zhongxin_logo_l.png",
@@ -708,11 +718,11 @@ class riskProfile extends Component<any, any> {
   tipRisk = (value: any) => { 
     console.log(value)
     let str
-    if (value>0 && value<=33) { 
+    if (value == '无风险') { 
       str = <Icons type='iconannoucement_risk_n' className='iconannoucement_risk_n' />
-    }else if (value>33 && value<=66) { 
+    }else if (value == '低风险') { 
       str = <Icons type='iconannoucement_risk_l' className='iconannoucement_risk_l' />
-    }else if (value>66 && value<=100) { 
+    }else if (value == '高风险') { 
       str = <Icons type='iconannoucement_risk_h' className='iconannoucement_risk_h' />
     }
     return str
@@ -721,7 +731,8 @@ class riskProfile extends Component<any, any> {
   render() {
     const {getFieldDecorator,isFieldTouched,getFieldError,getFieldsError} = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-    const { company, oneYear, Overview, rank, income, ysnl, cznl, czx, sjlist, qycb } = this.state.data;
+    const { scoreTitle, data: { company, oneYear, Overview, rank, income, ysnl, cznl, czx, sjlist, qycb } } = this.state
+    const { financialGlobal,financialAbility: { profitability, solvency, operating, currency, growth },financialEvent} = this.props
     return (
       <div className="risk-container">
         <div className="search">
@@ -747,28 +758,28 @@ class riskProfile extends Component<any, any> {
             <Card bordered={false} className="risk-info">
               <div className="logo">
                 <img src={company.logo} />
-                <h4>{company.name}</h4>
+                <h4>{financialGlobal.shor_name}</h4>
               </div>
               <div className="risk-info_inner">
                 <Paragraph ellipsis={{ rows: 2, expandable: true }}>
-                  {company.info}
+                  {financialGlobal.description}
                 </Paragraph>
               </div>
               <ul className="risk-info_plate clearfloat">
                 <li>
-                  <h4>{company.code}</h4>
+                  <h4>{financialGlobal.code}</h4>
                   <h5>股票代码</h5>
                 </li>
                 <li>
-                  <h4>{company.plate}</h4>
+                  <h4>{financialGlobal.sector}</h4>
                   <h5>所属板块</h5>
                 </li>
                 <li>
-                  <h4>{company.date}</h4>
+                  <h4>{financialGlobal.list_date}</h4>
                   <h5>上市日期</h5>
                 </li>
                 <li>
-                  <h4 className="red">{company.count}</h4>
+                  <h4 className="red">{financialGlobal.risk_count}</h4>
                   <h5>
                     <Link to="">全年财务风险数量</Link>
                   </h5>
@@ -778,136 +789,54 @@ class riskProfile extends Component<any, any> {
           </Col>
           <Col span={18}>
             <Card className="risk-gk" title="财务整体状况" bordered={false}>
+              
               <Tabs defaultActiveKey="1" onChange={callback} className="tabs-car-absolute">
-                <TabPane tab="近 1 年" key="1">
-                  <Row>
-                    <Col md={12} lg={12} xl={10} className="radar">
-                      <EchartsWrapper
-                        option={OverviewOption(Overview.oneYear)}
-                        style={{ height: 360 }}
-                      />
-                    </Col>
-                    <Col md={12} lg={12} xl={14} className="radar-right">
-                    <div className="top clearfloat">
-                      <div className="top-item">
-                        <span>财务风险等级：</span>
-                        <span className="em-list">
-                          <em>{Overview.oneYear.grade <= 35 ? <i>无风险</i> : null}</em>
-                          <em>{Overview.oneYear.grade > 35 && Overview.oneYear.grade <= 70 ? <i>低风险</i> : null}</em>
-                          <em>{Overview.oneYear.grade > 70 ? <i>高风险</i> : null}</em>
-                        </span>
-                      </div>
-                      <div className="top-item">
-                        <span>风险诊断：</span>
-                        <span className="oneEllipsis">{Overview.oneYear.diag}</span>
-                      </div>
-                      <div className="top-item">
-                        <span>财务综合评分：</span>
-                        <span>{80}</span>
-                      </div>
-                    </div>
-                    <ul className="abilityList clearfloat">
-                      {
-                        Overview.oneYear.abilityList.map((item: any, key: any) => <li key={key}>
-                          <Icons type={item.icon_name} className={item.icon_name} />
-                          <span className="title">{item.title}: </span>
-                          <span className="value">{item.value}</span>
-                        </li>)
-                      }
-                    </ul>
-                    <div className="foot">
-                      <a href="#" className="btn-more">查看详情</a>
-                    </div>
-                    </Col>
-                  </Row> 
-                </TabPane>
-
-                <TabPane tab="近 3 年" key="2">
-                  <Row>
-                    <Col md={12} lg={12} xl={10} className="radar">
-                      <EchartsWrapper
-                        option={OverviewOption(Overview.threeYear)}
-                        style={{ height: 360 }}
-                      />
-                    </Col>
-                    <Col md={12} lg={12} xl={14} className="radar-right">
-                      <div className="top clearfloat">
-                        <div className="top-item">
-                          <span>财务风险等级：</span>
-                          <span className="em-list">
-                            <em>{Overview.threeYear.grade <= 35 ? <i>无风险</i> : null}</em>
-                            <em>{Overview.threeYear.grade > 35 && Overview.threeYear.grade <= 70 ? <i>低风险</i> : null}</em>
-                            <em>{Overview.threeYear.grade > 70 ? <i>高风险</i> : null}</em>
-                          </span>
-                        </div>
-                        <div className="top-item">
-                          <span>风险诊断：</span>
-                          <span className="oneEllipsis">{Overview.threeYear.diag}</span>
-                        </div>
-                        <div className="top-item">
-                          <span>财务综合评分：</span>
-                          <span>{80}</span>
-                        </div>
-                      </div>
-                      <ul className="abilityList clearfloat">
-                        {
-                          Overview.threeYear.abilityList.map((item: any, key: any) => <li key={key}>
-                            <Icons type={item.icon_name} className={item.icon_name} />
-                            <span className="title">{item.title}: </span>
-                            <span className="value">{item.value}</span>
-                          </li>)
-                        }
-                      </ul>
-                      <div className="foot">
-                        <a href="#" className="btn-more">查看详情</a>
-                      </div>
-                    </Col>
-                  </Row>
-                </TabPane>
-
-                <TabPane tab="近 5 年" key="3">
-                  <Row>
-                    <Col md={12} lg={12} xl={10} className="radar">
-                      <EchartsWrapper
-                        option={OverviewOption(Overview.fiveYear)}
-                        style={{ height: 360 }}
-                      />
-                    </Col>
-                    <Col md={12} lg={12} xl={14}  className="radar-right">
-                      <div className="top clearfloat">
-                        <div className="top-item">
-                          <span>财务风险等级：</span>
-                          <span className="em-list">
-                            <em>{Overview.fiveYear.grade <= 35 ? <i>无风险</i> : null}</em>
-                            <em>{Overview.fiveYear.grade > 35 && Overview.fiveYear.grade <= 70 ? <i>低风险</i> : null}</em>
-                            <em>{Overview.fiveYear.grade > 70 ? <i>高风险</i> : null}</em>
-                          </span>
-                        </div>
-                        <div className="top-item">
-                          <span>风险诊断：</span>
-                          <span className="oneEllipsis">{Overview.fiveYear.diag}</span>
-                        </div>
-                        <div className="top-item">
-                          <span>财务综合评分：</span>
-                          <span>{80}</span>
-                        </div>
-                      </div>
-                      <ul className="abilityList clearfloat">
-                        {
-                          Overview.fiveYear.abilityList.map((item: any, key: any) => <li key={key}>
-                            <Icons type={item.icon_name} className={item.icon_name} />
-                            <span className="title">{item.title}: </span>
-                            <span className="value">{item.value}</span>
-                          </li>)
-                        }
-                      </ul>
-                      <div className="foot">
-                        <a href="#" className="btn-more">查看详情</a>
-                      </div>
-                    </Col>
-                  </Row>
-                </TabPane>
+                <TabPane tab="近 1 年" key="1"></TabPane>
+                <TabPane tab="近 3 年" key="2"></TabPane>
+                <TabPane tab="近 5 年" key="3"></TabPane>
               </Tabs>
+              
+              <Row>
+                <Col md={12} lg={12} xl={10} className="radar">
+                  <EchartsWrapper
+                    option={OverviewOption(financialGlobal)}
+                    style={{ height: 360 }}
+                  />
+                </Col>
+                <Col md={12} lg={12} xl={14} className="radar-right">
+                <div className="top clearfloat">
+                  <div className="top-item">
+                    <span>财务风险等级：</span>
+                    <span className="em-list">
+                      <em>{Overview.oneYear.grade <= 35 ? <i>无风险</i> : null}</em>
+                      <em>{Overview.oneYear.grade > 35 && Overview.oneYear.grade <= 70 ? <i>低风险</i> : null}</em>
+                      <em>{Overview.oneYear.grade > 70 ? <i>高风险</i> : null}</em>
+                    </span>
+                  </div>
+                  <div className="top-item">
+                    <span>风险诊断：</span>
+                    <span className="oneEllipsis">{Overview.oneYear.diag}</span>
+                  </div>
+                  <div className="top-item">
+                    <span>财务综合评分：</span>
+                    <span>{80}</span>
+                  </div>
+                </div>
+                <ul className="abilityList clearfloat">
+                  {
+                    Overview.oneYear.abilityList.map((item: any, key: any) => <li key={key}>
+                      <Icons type={item.icon_name} className={item.icon_name} />
+                      <span className="title">{item.title}: </span>
+                      <span className="value">{item.value}</span>
+                    </li>)
+                  }
+                </ul>
+                <div className="foot">
+                  <a href="#" className="btn-more">查看详情</a>
+                </div>
+                </Col>
+              </Row> 
+
             </Card>
           </Col>
           <Col span={24}>
@@ -960,11 +889,16 @@ class riskProfile extends Component<any, any> {
                 <span className="score">
                   <Icons type="icongeneral_score" className="icongeneral_score" />
                   <em>评分：</em>
-                  <span className={getColor(ysnl.score)}>{ysnl.score}</span>
+                  <span className={getColor(profitability.score)}>{profitability.score}</span>
                 </span>
               }
             >
-              <Table dataSource={ysnl.dataSource} columns={columns} pagination={false} />
+              <Table
+                rowKey={(record, index) => `${index}`}
+                dataSource={profitability.index}
+                columns={columns}
+                pagination={false}
+              />
             </Card>
           </Col>
           <Col span={12}>
@@ -973,12 +907,17 @@ class riskProfile extends Component<any, any> {
               extra={
                 <span className="score">
                   <Icons type="icongeneral_score" className="icongeneral_score" />
-                  <em>评分：</em>
-                  <span className={getColor(cznl.score)}>{cznl.score}</span>
+                  <em>{scoreTitle}: </em>
+                  <span className={getColor(solvency.score)}>{solvency.score}</span>
                 </span>
               }
             >
-              <Table dataSource={cznl.dataSource} columns={columns} pagination={false} />
+              <Table
+                rowKey={(record, index) => `${index}`}
+                dataSource={solvency.index}
+                columns={columns}
+                pagination={false}
+              />
             </Card>
           </Col>
 
@@ -987,12 +926,17 @@ class riskProfile extends Component<any, any> {
             extra={
               <span className="score">
                 <Icons type="icongeneral_score" className="icongeneral_score" />
-                <em>评分：</em>
-                <span className={getColor(ysnl.score)}>{ysnl.score}</span>
+                <em>{scoreTitle}: </em>
+                <span className={getColor(operating.score)}>{operating.score}</span>
               </span>
             }
             >
-              <Table dataSource={ysnl.dataSource} columns={columns} pagination={false} />
+              <Table
+                rowKey={(record, index) => `${index}`}
+                dataSource={operating.index}
+                columns={columns}
+                pagination={false}
+              />
             </Card>
           </Col>
           <Col span={12}>
@@ -1001,12 +945,17 @@ class riskProfile extends Component<any, any> {
               extra={
                 <span className="score">
                   <Icons type="icongeneral_score" className="icongeneral_score" />
-                  <em>评分：</em>
-                  <span className={getColor(cznl.score)}>{cznl.score}</span>
+                  <em>{scoreTitle}: </em>
+                  <span className={getColor(currency.score)}>{currency.score}</span>
                 </span>
               }
             >
-              <Table dataSource={cznl.dataSource} columns={columns} pagination={false} />
+              <Table
+                rowKey={(record, index) => `${index}`}
+                dataSource={currency.index}
+                columns={columns}
+                pagination={false}
+              />
             </Card>
           </Col>
 
@@ -1018,14 +967,20 @@ class riskProfile extends Component<any, any> {
               extra={
                 <span className="score">
                   <Icons type="icongeneral_score" className="icongeneral_score" />
-                  <em>评分：</em>
-                  <span className={getColor(czx.score)}>{czx.score}</span>
+                  <em>{scoreTitle}: </em>
+                  <span className={getColor(growth.score)}>{growth.score}</span>
                 </span>
               }
             >
-              <Table dataSource={czx.dataSource} columns={columns} pagination={false} />
+              <Table
+                rowKey={(record, index) => `${index}`}
+                dataSource={growth.index}
+                columns={columns}
+                pagination={false}
+              />
             </Card>
           </Col>
+          
           <Col span={12}>
             <Card
               className="risk-sj"
@@ -1035,7 +990,7 @@ class riskProfile extends Component<any, any> {
             >
               <ul className="ul-list">
               {
-                  sjlist.slice(0, 4).map((item: any, idx: any) => <li key={idx}>{this.tipRisk(item.score)}<a href="#">{item.title}</a><time>{item.date}</time></li> )
+                  financialEvent.risk_event.slice(0, 4).map((item: any, idx: any) => <li key={idx}>{this.tipRisk(item.risk_level)}<a href="#">{item.title}</a><time>{item.date}</time></li> )
               }
               </ul>
             </Card>
@@ -1049,7 +1004,7 @@ class riskProfile extends Component<any, any> {
             >
               <ul className="img-list">
               {
-                  qycb.slice(0,5).map((item: any, idx: any) => <li key={idx}><a href="#"><img src={item.img} /></a><a href="#">{item.title}</a><time>{item.date}</time></li> )
+                  financialEvent.report.slice(0,5).map((item: any, idx: any) => <li key={idx}><a href="#" className="img_caibao">{item.title.slice(0,8)}</a><a href="#">{item.title}</a><time>{item.pub_date}</time></li> )
               }
               </ul>
             </Card>
@@ -1060,4 +1015,14 @@ class riskProfile extends Component<any, any> {
   }
 }
 const WrapSearch = Form.create()(riskProfile);
-export default WrapSearch;
+const mapStateProps = (state: any) => {
+  return {
+    financialAbility: state.financialAbility.results,
+    financialEvent: state.financialEvent.results,
+    financialGlobal: state.financialGlobal.results,
+  }
+}
+const mapDispatchToProps = {}
+export default connect(mapStateProps)(WrapSearch)
+
+// export default WrapSearch;

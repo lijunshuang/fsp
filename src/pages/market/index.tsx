@@ -15,7 +15,7 @@ function hasErrors(fieldsError: any) {
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
-const trade = ["所有","房地产","金融","餐饮","环保","地产","科技","农林牧渔"]//行业选项
+// const trade = ["所有","房地产","金融","餐饮","环保","地产","科技","农林牧渔"]//行业选项
 
 const oneYear = {
   text: '指标：风险企业数',
@@ -36,11 +36,12 @@ const fiveYear = {
   data: [120, 252, 176, 184,69],
 }
 //echart 配置项
-const getOption = (value: any) => {
-  // console.log(value)
+const getOption = (val: any) => {
+  const date = val.map((item:any)=>item.date)
+  const value = val.map((item:any)=>item.value)
   const option = {
     title: {
-      text: value.text,
+      text: '指标：风险企业数',
       textStyle: {
         fontSize: "14px",
         color: '#6B798E',
@@ -71,7 +72,7 @@ const getOption = (value: any) => {
           fontSize:"12px",
         },
       },
-      data: value.date,
+      data: date,
     },
     yAxis: {
       type: 'value',
@@ -90,7 +91,7 @@ const getOption = (value: any) => {
       }
     },
       series: [{
-        name:value.name,
+        name:"风险",
         type: 'line',
         symbolSize: 8,   //折线点的大小
         label: { //线上的文字
@@ -109,92 +110,22 @@ const getOption = (value: any) => {
               }
           },
         },
-        data: value.data,
+        data: value,
     }]
   };
   return option
 }
- //select change
-function handleChange(value:any) {
-  console.log(`selected ${value}`);
-}
-function callback(key:any) {
-  console.log(key);
-  getOption(key)
-}
 
-
+//本页用到图片
+const img = {
+  company_logo:"/images/zhongxin_logo.png"
+}
 class Home extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-      data: {
-        //本报告期行业风险榜
-        riskList: [
-          {
-            id: 1,
-            title: "房地产",
-            icon:"iconhome_estate",
-            number: 23,
-          },
-          {
-            id: 2,
-            title: "金融",
-            icon:"iconhome_finance",
-            number: 45,
-          },
-          {
-            id: 3,
-            title: "餐饮",
-            icon:"iconhome_food",
-            number: 23,
-          },
-          {
-            id: 4,
-            title: "房地产",
-            icon:"iconhome_environment",
-            number: 23,
-          },
-          {
-            id: 5,
-            title: "科技",
-            icon:"iconhome_technique",
-            number: 23,
-          }
-        ],
-        financeList: [
-          {
-            id: 1,
-            title: "中信证券",
-            logo:"/images/zhongxin_logo.png",
-            number: 23,
-          },
-          {
-            id: 2,
-            title: "海通证券",
-            logo:"/images/pingan_logo.png",
-            number: 45,
-          },
-          {
-            id: 3,
-            title: "平安证券",
-            logo:"/images/haitong_logo.png",
-            number: 23,
-          },
-          {
-            id: 4,
-            title: "平安证券",
-            logo:"/images/zhongxin_logo.png",
-            number: 23,
-          },
-          {
-            id: 5,
-            title: "默认logo",
-            logo:"/images/default_logo.png",
-            number: 23,
-          }
-        ],
-      }
+      currentTrade: '所有',
+      currentYear: 'this_year'
     }
   }
   componentDidMount() {
@@ -210,6 +141,29 @@ class Home extends Component<any, any> {
       }
     });
   };
+  /******* Select 的function************ */
+  handleChange = (value:any)=> {
+    console.log(`selected ${value}`);
+    this.setState({
+      currentTrade: value
+    })
+  }
+  handleBlur=()=> {
+    console.log('blur');
+  }
+  
+  handleFocus=()=> {
+    console.log('focus');
+  }
+/******* Select 的function************ */
+  
+  callback=(key:any)=> {
+    console.log(key);
+    this.setState({
+      ...this.state,
+      currentYear: key
+    })
+  }
   //公告数量
   count = () => (
     [
@@ -229,15 +183,23 @@ class Home extends Component<any, any> {
         icon:"iconhome_today_subscribe"
       }
     ]
-  ) 
+  )
+  getIcon = (value: any) => { 
+    let icon ='iconhome_environment'
+    if (value == '房地产') { 
+      icon = 'iconhome_estate'
+    }else if (value == '金融') { 
+      icon = 'iconhome_finance'
+    }
+    return icon
+  }
   render() {
-    console.log(this.props.results)
-
     const {getFieldDecorator,isFieldTouched,getFieldError,getFieldsError} = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-    const { riskList, financeList } = this.state.data
-    const { today_event_count, today_company_count, today_subscribed_event, company_risk_rank, industry_risk_rank } = this.props.results
-
+    const { results: { company_risk_rank, industry_risk_rank }, riskHistoty } = this.props
+    const trade = Object.keys(riskHistoty) //获取所有行业名称
+    console.log(riskHistoty)
+    console.log(this.state)
     return (
       <div className="market">
         <div className="search">
@@ -280,32 +242,31 @@ class Home extends Component<any, any> {
               title="历史走势"
               bordered={false}
             >
-              <Tabs defaultActiveKey="1" onChange={callback}>
-                <TabPane tab="近 1 年" key="1">
-                  <Select defaultValue="所有" style={{ width: 120 }} onChange={handleChange}>
-                    {
-                      trade.map((item: any, idx: any) => <Option key={idx} value={item}>{item}</Option>)
-                    }
-                  </Select>
-                  <EchartsWrapper option={getOption(oneYear)} style={{height:450}} />
+              <Select
+                showSearch
+                defaultValue="所有"
+                style={{ width: 120 }} 
+                onChange={this.handleChange}
+                onFocus={this.handleFocus}
+                onBlur={this.handleBlur}
+                filterOption={(input:any, option:any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+              >
+                {
+                  trade.map((item: any, idx: any) => <Option key={idx} value={item}>{item}</Option>)
+                }
+              </Select>
+              
+              <Tabs defaultActiveKey="1" onChange={this.callback}>
+                <TabPane tab="近 1 年" key="this_year">
+                  <EchartsWrapper option={getOption(riskHistoty.所有.this_year)} style={{height:450}} />
                 </TabPane>
 
-                <TabPane tab="近 3 年" key="2">
-                  <Select defaultValue="所有" style={{ width: 120 }} onChange={handleChange}>
-                    {
-                      trade.map((item: any, idx: any) => <Option key={idx} value={item}>{item}</Option>)
-                    }
-                  </Select>
-                  <EchartsWrapper option={getOption(threeYear)} style={{height:450}} />
+                <TabPane tab="近 3 年" key="last_3_year">
+                  <EchartsWrapper option={getOption(riskHistoty.所有.last_3_year)} style={{height:450}} />
                 </TabPane>
 
-                <TabPane tab="近 5 年" key="3">
-                  <Select defaultValue="所有" style={{ width: 120 }} onChange={handleChange}>
-                    {
-                      trade.map((item: any, idx: any) => <Option key={idx} value={item}>{item}</Option>)
-                    }
-                  </Select>
-                  <EchartsWrapper option={getOption(fiveYear)} style={{height:450}} />
+                <TabPane tab="近 5 年" key="last_5_year">
+                  <EchartsWrapper option={getOption(riskHistoty.所有.last_5_year)} style={{height:450}} />
                 </TabPane>
               </Tabs>
             </Card>
@@ -318,12 +279,12 @@ class Home extends Component<any, any> {
               className="risk-list"
             >
               <ul>
-                {riskList.map((item: any, idx: any) => (
+                {industry_risk_rank.map((item: any, idx: any) => (
                   <li key={idx}>
                     <span className="id">{idx + 1}. </span>
-                    <Icons type={item.icon} />
-                    <span className="title">{item.title}</span>
-                    <span className="number">{item.number}</span>
+                    <Icons type={this.getIcon(item.name)} />
+                    <span className="title">{item.name}</span>
+                    <span className="number">{item.score}</span>
                   </li>
                 ))}
               </ul>
@@ -334,15 +295,14 @@ class Home extends Component<any, any> {
               className="risk-list fchange-list"
             >
               <ul>
-                {financeList.map((item: any, idx: any) => (
+                {company_risk_rank.map((item: any, idx: any) => (
                   <li key={idx}>
                     <span className="id">{idx + 1}. </span>
-                    <img src={item.logo} />
-                    <span className="title">{item.title}</span>
-                    
+                    <img src={img.company_logo} />
+                    <span className="title">{item.name}</span>
                     <span className="number">
                       <Icons type="iconhome_rank_increase" />
-                      {item.number}%
+                      {item.score}
                     </span>
                   </li>
                 ))}
@@ -358,6 +318,7 @@ const WrapSearch = Form.create()(Home);
 const mapStateProps = (state: any) => {
   return {
     results: state.riskEvents.results,
+    riskHistoty: state.riskHistory.results,
   }
 }
 const mapDispatchToProps = {getData}
