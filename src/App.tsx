@@ -24,7 +24,7 @@ const pages = Pages.map((p) => (
 
 const LocalApp = () => (
     <Router history={history}>
-        <Layout>
+        <Layout className={document.location.pathname === '/login' ? 'login-container' : ''}>
             <SiteSider />
             <Content
                 style={{ height: '100vh' }}

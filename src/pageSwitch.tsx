@@ -59,7 +59,9 @@ const l = (s: any) => {
     }
     return load
 }
-
+/**
+ * 添加、删除 页面的路由，主要修改这里，其他函数和类都是辅助用的
+ */
 const Pages: any[] = [
     // {
     //     path: '/',
@@ -67,7 +69,7 @@ const Pages: any[] = [
     // },
     {
         path: '/',
-        component: b((s: any) => import('./pages/market/').then(l(s)), '大盘财务行情', true),
+        component: b((s: any) => import('./pages/market/').then(l(s)), '首页-大盘财务行情', true),
     },
     {
         path: '/market',
@@ -88,6 +90,14 @@ const Pages: any[] = [
     {
         path: '/market/riskDetails',
         component: b((s: any) => import('./pages/market/riskDetails').then(l(s)), '风险详情', true),
+    },
+    {
+        path: '/login',
+        component: b((s: any) => import('./pages/login').then(l(s)), '用户登录', true),
+    },
+    {
+        path: '/user',
+        component: b((s: any) => import('./pages/user').then(l(s)), '用户设置', true),
     },
     
 

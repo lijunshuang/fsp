@@ -1,15 +1,37 @@
 ul,li{list-style: none;margin:0px;padding:0px;}
-$mt20: 20px;
+/*10 ÷ 16 × 100% = 62.5%*/
+html {font-size: 62.5%;-webkit-text-size-adjust:none}
+body {font-size: 1.4rem;/*1.4 × 10px = 14px */}
+
+$m10 : 1rem;
+$m20 : 2rem;
+$m30 : 3rem;
+$m40 : 4rem;
+
+$fz12: 1.2rem;
+$fz14: 1.4rem;
+$fz16: 1.6rem;
+$fz18: 1.8rem;
+$fz20: 2rem;
+$fz24: 2.4rem;
+$fz26: 2.6rem;
+$fz28: 2.8rem;
+$fz30: 3rem;
+$fz32: 3.2rem;
+$fz34: 3.4rem;
+$fz36: 3.6rem;
+$fz40: 4rem;
+
 /*清除浮动代码*/
 .clearfloat:after{display:block;clear:both;content:" ";visibility:hidden;height:0}
 .clearfloat{zoom:1}
 
-.icon {
-  width: 1em; height: 1em;
-  vertical-align: -0.15em;
-  fill: currentColor;
-  overflow: hidden;
-}
+// .anticon {
+//   width: 1em; height: 1em;
+//   vertical-align: -0.15em;
+//   fill: currentColor;
+//   overflow: hidden;
+// }
 .red{color:#E62129 !important}
 .orange{color:#FFAB2D !important}
 .green{color:#2FC25B !important}
@@ -19,6 +41,15 @@ button{
   &:focus{outline: none}
 }
 
+//重写 input 样式
+.ant-form-item{
+  input{
+      height:44px;
+      background:rgba(255,255,255,1);
+      border-radius:2px;
+      border:1px solid rgba(190,200,211,0.4);
+  }
+}
 .oneEllipsis{
   white-space: nowrap;
   overflow: hidden;
@@ -31,7 +62,7 @@ button{
     .ant-tooltip-inner{
       background:#fff;
       color:#6B798E;
-      font-size: 12px;
+      font-size: $fz12;
       box-shadow:0px 4px 16px 0px rgba(16,70,152,0.1);
       border:1px solid rgba(190,200,211,0.24)
     }
@@ -88,11 +119,15 @@ button{
       top: 2px;
     }
   }
+  .ant-select{
+    font-size: $fz14;
+  }
   // 重新antd的 card 组件样式
   .ant-card{
     .ant-card-head{
-      padding:0px 40px 0px 51px;
+      padding:0px 4rem 0px 5rem;
       border-bottom: 0;
+      font-size: $fz16;
       .ant-card-head-title{
         position: relative;
         overflow: inherit;
@@ -115,7 +150,7 @@ button{
         .btn-default{
           border-color: #2A5082;
           color:#2A5082;
-          font-size: 12px;
+          font-size: $fz12;
           border-radius:2px;
           height: 26px;
           line-height: 24px;
@@ -129,13 +164,13 @@ button{
             font-style: normal;
           }
           span{
-            font-size: 18px;
+            font-size: $fz18;
           }
         }
       }
     }
     .ant-card-body{
-      padding: 0px 40px 20px 40px;
+      padding: 0px $m30 $m20;
 
       .echarts-for-react{
         &>div{
@@ -199,7 +234,7 @@ button{
           a{
             float: left;
             width:70%;
-            font-size: 16px;
+            font-size: $fz16;
             color:#3A3B46;
             white-space: nowrap;
             text-overflow:ellipsis;
@@ -244,7 +279,7 @@ button{
           a{
             display: block;
             color:#3A3B46;
-            font-size: 16px;
+            font-size: $fz16;
             width: 100%;
             white-space: nowrap;
             text-overflow:ellipsis;
@@ -260,32 +295,40 @@ button{
   .market{
     .count{
       background:#fff;
-      padding:55px 10px;
+      padding:60px 10px 0px;
+      height: 17.5rem;
       .ant-col-8{
-        padding-left:14px;
-        border-right: 1px solid rgba(190,202,216,.3);
-        &:last-child{border-right:0px}
+        position: relative;
+        .ant-divider{
+          height: 5rem;
+          position: absolute;
+          right: 0px;
+          top: 10px;
+        }
+        &:last-child{
+          .ant-divider{display: none;}
+        }
       }
       i{
-        font-size: 90px;
+        font-size: 9rem;
         float: left;
       }
       span{
-        margin-left:90px;
+        // margin-left:9rem;
         display: block
       }
       .title{
         color:#6B798E;
-        font-size:18px;
+        font-size:1.8rem;
       }
       .number{
-        font-size: 48px;
+        font-size: 4.8rem;
         color:#3A3B46;
       }
     }
     // 历史走势
     .history-box{
-      margin-top: $mt20;
+      margin-top: $m20;
       height:570px;
       .ant-card-head{
         position: relative;
@@ -300,7 +343,7 @@ button{
             border-bottom: 0;
             .ant-tabs-nav-container{
               height:32px;
-              font-size: 14px;
+              font-size: $fz14;
             }
             .ant-tabs-nav{
               .ant-tabs-tab{
@@ -356,7 +399,7 @@ button{
       overflow: hidden;
       li{
         line-height: 62px;
-        font-size: 16px;
+        font-size: $fz16;
         &::after{
           content: '';
           display: block;
@@ -366,10 +409,9 @@ button{
         }
         .id{color:#6B798E;}
         i.anticon{
-          font-size: 32px;
+          font-size: $fz32;
           position: relative;
           top:4px;
-          margin:0px 10px 0px 10px;
           color:#6B798E;
         }
         .title{
@@ -382,16 +424,16 @@ button{
       }
     }
     .fchange-list{
-      margin-top: $mt20;
+      margin-top: $m20;
       li{
         img{
-          width: 30px;
+          width: $fz30;
           margin: 0px 10px;
         }
         .number{
           i.anticon{
             color:#E62129;
-            font-size: 16px;
+            font-size: $fz16;
             margin-right: 2px;
             top:0px;
           }
@@ -404,12 +446,12 @@ button{
   .risk-container{
     .ant-row{
       .icongeneral_score{
-        font-size: 24px;
+        font-size: $fz24;
         position: relative;
         top:3px;
       }
       .ant-col-24,.ant-col-12{
-        margin-top: $mt20;
+        margin-top: $m20;
       }
       .risk-ylnl,.risk-cznl,.risk-yynl,.risk-xjzl,.risk-xjzl,.risk-czx,.risk-cz,.risk-sj{
         max-height: 310px;
@@ -419,7 +461,7 @@ button{
         position: absolute;
         top: 35px;
         left: 130px;
-        font-size: 12px;
+        font-size: $fz12;
         color:#7D92A7;
       }
       .risk-info{
@@ -429,7 +471,7 @@ button{
         .logo{
           text-align: center;
           h4{
-            font-size: 20px;
+            font-size: $fz20;
             color:#3A3B46;
           }
         }
@@ -453,12 +495,12 @@ button{
               border-right: 1px solid rgba(190,202,216,.3);
             }
             h4{
-              font-size: 16px;
+              font-size: $fz16;
               color:#3A3B46;
               margin:0px;
             }
             h5{
-              font-size: 14px;
+              font-size: $fz14;
               color:#6B798E;
               a{
                 color:#6B798E;
@@ -473,7 +515,7 @@ button{
             width:100%;
             border-color: #2A5082;
             color: #2A5082;
-            font-size: 14px;
+            font-size: $fz14;
             border-radius: 2px;
             height: 40px;
             line-height: 38px;
@@ -499,7 +541,7 @@ button{
               border-bottom: 0;
               .ant-tabs-nav-container{
                 height:32px;
-                font-size: 14px;
+                font-size: $fz14;
               }
               .ant-tabs-nav{
                 .ant-tabs-tab{
@@ -568,7 +610,7 @@ button{
                       width:48px;
                       height: 30px;
                       line-height: 15px;
-                      font-size: 12px;
+                      font-size: $fz12;
                       text-align: center;
                       float: left;
                       margin-right: 5px;
@@ -618,7 +660,7 @@ button{
                   margin-top: 16px;
                   line-height: 25px;
                   i.anticon{
-                    font-size: 24px;
+                    font-size: $fz24;
                     position: relative;
                     top:2px;
                     right: 5px;
@@ -749,14 +791,14 @@ button{
           margin-top: 0px;
           padding:0px 20px 20px !important;
           h4{
-            font-size: 16px;
+            font-size: $fz16;
             color:#3A3B46;
             border-bottom: 1px solid #BEC8D3;
             padding: 25px 0px 15px;
             a{
               float: right;
               color:#3E74CA;
-              font-size: 14px;
+              font-size: $fz14;
             }
           }
           .resolve-list{
@@ -771,7 +813,7 @@ button{
               }
               .idx{
                 color:#2A5082;
-                font-size: 12px;
+                font-size: $fz12;
                 border: 1px solid #2A5082;
                 border-radius:2px;
                 padding: 1px 5px;
@@ -784,7 +826,7 @@ button{
               .status{
                 float: right;
                 i{
-                  font-size: 18px;
+                  font-size: $fz18;
                 }
                 .iconindicator_state_1{
                   color:#2FC25B;
@@ -798,17 +840,17 @@ button{
         }
 
         .title-lev{
-          font-size: 16px;
+          font-size: $fz16;
           color:#333;
           margin-top: 30px;
           span{
-            font-size: 14px;
+            font-size: $fz14;
             font-weight: normal;
             color:#909399;
           }
           a{
             font-weight: normal;
-            font-size: 14px;
+            font-size: $fz14;
           }
         }
         .some-table{
@@ -840,8 +882,242 @@ button{
     
   }
 
+}
+
+//登录页 
+
+//登录页 隐藏 header 和 左侧边栏
+// .login-container{
+//     .header,.ant-layout-sider{
+//         display: none;
+//     }
+//     .container{
+//         padding:0px;
+//         height: 100vh;
+//     }
+// }
+.login-box{
+  width: 100%;
+  height:100vh;
+  position: fixed;
+  top:0px;left:0px;right:0px;bottom:0px;
+  background:url('/images/bg.png') top center no-repeat;
+  background-size: cover;
+  // position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .logo{
+      position: fixed;
+      top:15px;
+      left: 40px;
+      img{
+          max-height: 40px;
+      }
+  }
+
+  .login-center{
+      width:1000px;
+      height:560px;
+      background:#fff;
+      display: flex;
+
+      .ant-typography{
+          font-weight: normal;
+          color:#3A3B46;
+          text-align: center;
+      }
+
+      img{
+          width:480px;
+      }
+
+      .login-form{
+          flex: 1;
+          padding:40px 80px;
+          .ant-form-item{
+              .vcode{
+                  display: flex;
+
+                  button{
+                      width: 106px;
+                      height: 44px;
+                      border: 0;
+                      margin-left:12px;
+                      border-radius: 0;
+                      text-transform: uppercase;
+                      font-size: $fz20;
+                      background-size: cover;
+                      letter-spacing: 10px;
+                  }
+              }
+              .login-btn{
+                  width: 100%;
+                  height:46px;
+                  background:rgba(42,80,130,1);
+                  border-radius:3px;
+                  margin-top: 20px;
+              }
+          }
+          .ant-form-item-label{
+              &>label{
+                 &::before{
+                     content: "";
+                 } 
+                 &::after{
+                     content: "";
+                 } 
+              }
+          }
+      }
+  }
+}
+
+// 用户中心
+
+.user-box{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: #fff;
+  overflow-y:auto;
+  .userSet-form{
+    width: 400px;
+    .avatar-uploader{
+
+      span.ant-upload{
+        width:80px;
+        height: 80px;
+        display: block;
+        img{
+          max-width: 100%;
+        }
+      }
+    }
+    .ant-form-item{
+
+      .ant-form-item-label{
+        &>label{
+           &::before{
+               content: "";
+           } 
+           &::after{
+               content: "";
+           } 
+        }
+      }
+      &.foot-btn{
+        text-align: center;
+        margin-top: 20px;
+
+        button{
+          width: 114px;
+          height: 44px;
+          font-size: $fz16;
+          border: 0;
+          border-radius: 2px;
+          background: #2A5082;
+        }  
+      }
+    }
+    .password{
+      position: relative;
+  
+      &>i.anticon{
+        font-size: $fz16;
+        position: absolute;
+        right:8px;top:12px;
+      }
+    }
+
+  }
+}
 
 
 
+@media(max-width:1600px){ 
+  html { 
+    font-size:52.5%; 
+  } 
+}
+@media(max-width:1400px){ 
+  html { 
+    font-size:46.5%; 
+  }
+  $m20 : 1.6rem;
+  $m10 : 1rem;
+  $m30 : 2.6rem;
+  $m40 : 3.6rem;
+
+  .ant-layout{
+
+    .ant-card {
+      .ant-card-head{
+        padding:0px 3.6rem 0px 4rem;
+      }
+      .ant-card-body {
+        padding: 0px 2.6rem 1.8rem;
+      }
+    }
+     
+    .market{
+      .fchange-list{
+        li{
+          img{
+            width:2.4rem
+          }
+        }
+      }
+    }
+  }
+}
+@media(max-width:1366px){ 
+  html { 
+    font-size:42.5%; 
+  } 
+}
+@media(max-width:1280px){ 
+  html { 
+    font-size:38%; 
+  }
+
+  .ant-layout{
+
+    .ant-card {
+      .ant-card-head{
+        padding:0px 3rem 0px 3rem;
+      }
+      .ant-card-body {
+        padding: 0px 2.2rem 1.6rem;
+      }
+    }
+     
+    .market{
+      .fchange-list{
+        li{
+          img{
+            width:2rem
+          }
+        }
+      }
+    }
+  }
 
 }
+@media(max-width:1080px){ 
+  html { 
+    font-size:36%; 
+  } 
+}
+
+
+
+
+// @media(max-width:540px){ html { font-size:84.375px; } } /*Android常用宽度*/
+// @media(max-width:480px){ html { font-size:75px; } }		/*Android常用宽度*/
+// @media(max-width:414px){ html { font-size:64.69px; } }  /*i6Plus,i7Plus宽度*/  
+// @media(max-width:375px){ html { font-size:58.59px; } }	/*i6,i7宽度*/
+// @media(max-width:360px){ html { font-size:56.25px; } }	/*Android常用宽度*/
+// @media(max-width:320px){ html { font-size:50px; } }		/*i5宽度*/

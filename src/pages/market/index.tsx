@@ -1,4 +1,4 @@
-import { Card, Col, Form, Icon, Input, Row, Select, Statistic, Tabs } from 'antd';
+import { Card, Col, Divider, Form, Icon, Input, Row, Select, Statistic, Tabs } from 'antd';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -261,9 +261,14 @@ class Home extends Component<any, any> {
             <Row className="count">
               {count.map((item: any, idx: any) => (
                 <Col span={8} key={idx}>
-                  <Icons type={countIcon[idx]} />
-                  <span className="title">{item.title}</span>
-                  <span className="number">{item.number}</span>
+                  <Row gutter={0}>
+                    <Col span={8}><Icons type={countIcon[idx]} /></Col>
+                    <Col span={16}>
+                      <span className="title">{item.title}</span>
+                      <span className="number">{item.number}</span>
+                    </Col>
+                  </Row>
+                  <Divider type="vertical" />
                 </Col>
               ))}
             </Row>

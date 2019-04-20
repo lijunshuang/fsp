@@ -42,7 +42,7 @@ export default class Header extends React.Component<any, any> {
         const _date = new Date();
         const { username} = this.state
         return (
-            <div>
+            <div className="header">
                 <header>
                     <div className="header_right">
                         <span className="avatar">
