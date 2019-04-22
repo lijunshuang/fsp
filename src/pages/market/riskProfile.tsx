@@ -20,10 +20,10 @@ const { Paragraph } = Typography;
 //财务整体概况--数据
 const OverviewOption = (value: any) => {
   const name = [value.shor_name, '行业平均'] //获取 对比的名称
-  const indicator = value.company.company_score.map((item:any)=>item.name)
-  const arr = value.company.company_score.map((item:any)=>item.score)
-  const max = Math.max.apply(null,arr); //获取数组中的最大值
-  console.log(indicator)
+  const indicator = value.company.company_score.map((item:any)=>item.name)              // 获取各个维度的name
+  const company_data = value.company.company_score.map((item:any)=>Number(item.score))  //获取公司score 值
+  const industry_data = value.industry.map((item:any)=>Number(item.score))              //获取行业平均score 值
+  const max = Math.max.apply(null, company_data);                                       //获取数组中的最大值
   const option = {
     tooltip: {},
     legend: {
@@ -56,59 +56,61 @@ const OverviewOption = (value: any) => {
         return arr
       })()
     },
-    // series: [{
-    //     name: '',
-    //     type: 'radar',
-    //     areaStyle: {
-    //         normal: {
-    //             opacity:0.4
-    //         }
-    //     },
-    //     data : [
-    //         {
-    //             value : value.data,
-    //             name : '中信股份',
-    //             itemStyle: {
-    //               normal: {
-    //                 color: "#1890FF",
-    //               }
-    //             },
-    //             label: {
-    //                 normal: {
-    //                     show: true,
-    //                     formatter:(params:any)=>{
-    //                         return params.value;
-    //                     }
-    //                 }
-    //             }
-    //         },
-    //          {
-    //             value : [50, 34, 50, 31, 42],
-    //             name : '行业平均',
-    //             itemStyle: {
-    //               normal: {
-    //                 color: "#B53ECE",
-    //               }
-    //             },
-    //             label: {
-    //                 normal: {
-    //                     show: true,
-    //                     formatter:(params:any)=>{
-    //                         return params.value;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     ]
-    // }]
+    series: [{
+        name: '',
+        type: 'radar',
+        areaStyle: {
+            normal: {
+                opacity:0.4
+            }
+        },
+        data : [
+          {
+            name : name[0],
+            value : company_data,
+            itemStyle: {
+              normal: {
+                color: "#1890FF",
+              }
+            },
+            label: {
+                normal: {
+                    show: true,
+                    formatter:(params:any)=>{
+                        return params.value;
+                    }
+                }
+            }
+          },
+          {
+            value : industry_data,
+            name : name[1],
+            itemStyle: {
+              normal: {
+                color: "#B53ECE",
+              }
+            },
+            label: {
+                normal: {
+                    show: true,
+                    formatter:(params:any)=>{
+                        return params.value;
+                    }
+                }
+            }
+          }
+        ]
+    }]
 };
   return option;
 };
 //近期风险走势
 const historyOption = (value: any) => {
+  const date = value.map((item:any)=>item.date) //时间
+  const data = value.map((item:any)=>item.value) // 获取数据
   const option = {
     title: {
-      text: value.text,
+      text: "指标：风险数",
       textStyle: {
         fontSize: "14px",
         color: "#6B798E"
@@ -139,7 +141,7 @@ const historyOption = (value: any) => {
           fontSize: "12px"
         }
       },
-      data: value.date
+      data: date
     },
     yAxis: {
       type: "value",
@@ -158,7 +160,7 @@ const historyOption = (value: any) => {
     },
     series: [
       {
-        name: value.name,
+        name: "风险",
         type: "line",
         symbolSize: 8,   //折线点的大小
         lineStyle: {
@@ -185,7 +187,7 @@ const historyOption = (value: any) => {
             position: "top"
           }
         },
-        data: value.data
+        data:data
       },
       {
         name: "",
@@ -195,7 +197,7 @@ const historyOption = (value: any) => {
           //柱状图的样式
           color: "#BEC8D3"
         },
-        data: value.data
+        data:data
       }
     ]
   };
@@ -203,6 +205,8 @@ const historyOption = (value: any) => {
 };
 //总排名
 const rankOption = (value: any) => {
+  const date = value.history_score.map((item:any)=>item.date) //时间
+  const data = value.history_score.map((item:any)=>item.value) // 获取数据
   const option = {
     tooltip: {
       trigger: "axis",
@@ -229,7 +233,7 @@ const rankOption = (value: any) => {
           fontSize: "12px"
         }
       },
-      data: value.date
+      data: date
     },
     yAxis: {
       type: "value",
@@ -248,7 +252,7 @@ const rankOption = (value: any) => {
     },
     series: [
       {
-        name: value.name,
+        name: value.short_name,
         type: "line",
         symbolSize: 8,   //折线点的大小
         label: { //线上的文字
@@ -267,7 +271,7 @@ const rankOption = (value: any) => {
               }
           },
         },
-        data: value.data
+        data: data
       }
     ]
   };
@@ -275,6 +279,10 @@ const rankOption = (value: any) => {
 };
 // 业绩收益
 const incomeOption = (value: any) => {
+  const name = [value.short_name, '行业平均'] //获取 对比的名称
+  const date = value.history_score.map((item:any)=>item.date) //时间
+  const data = value.history_score.map((item:any)=>item.value) // 获取数据
+  const industry_data = value.industry_score.map((item:any)=>item.value) // 获取数据
   const option = {
     grid: {
       top: "45px",
@@ -301,7 +309,7 @@ const incomeOption = (value: any) => {
           fontSize: "12px"
         }
       },
-      data: value.date,
+      data: date,
     },
     yAxis: {
       type: "value",
@@ -321,10 +329,10 @@ const incomeOption = (value: any) => {
     },
     series: [
       {
-        name: value.incomeData[0].name,
+        name: name[0],
         type: "bar",
         barWidth: "24",
-        data: value.incomeData[0].data,
+        data: data,
         marginBottom: -20,
         textAlign: "left",
         itemStyle: {
@@ -341,18 +349,12 @@ const incomeOption = (value: any) => {
             }
           }
         },
-        // label: {
-        //   normal: {
-        //     show: true,
-        //     position: "top", //---数据显示在上方
-        //   }
-        // }
       },
       {
-        name: value.incomeData[1].name,
+        name: name[1],
         type: "bar",
         barWidth: "24",
-        data: value.incomeData[1].data,
+        data: industry_data,
         marginBottom: -20,
         textAlign: "left",
         itemStyle: {
@@ -369,12 +371,6 @@ const incomeOption = (value: any) => {
             }
           }
         },
-        // label: {
-        //   normal: {
-        //     show: true,
-        //     position: "top", //---数据显示在上方
-        //   }
-        // }
       }
     ]
   };
@@ -428,283 +424,31 @@ const columns = [
       </span>,
   }
 ];
-
+const score_icon = ["icongeneral_score_profit","icongeneral_score_debt","icongeneral_score_operate","icongeneral_score_grow","icongeneral_score_cash"]
 class riskProfile extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
-      scoreTitle:"评分",
-      data: {
-        company: {
-          logo: "/images/zhongxin_logo_l.png",
-          name: "中信股份",
-          info:
-            "公司简介基本内容文字基本内容文字基本内容文字基本内容文字基本内容文字基本内容文字…",
-          code: "630011",
-          plate: "金融",
-          date: "2000.01.01",
-          count: 124
-        },
-        oneYear: {
-          text: "指标：风险数",
-          date: [
-            "2017-01-01 至 2017-03-31",
-            "2017-04-01 至 2017-06-30",
-            "2017-07-01 至 2017-09-30",
-            "2017-10-01 至 2017-12-31"
-          ],
-          name: "风险",
-          data: [86, 52, 76, 34]
-        },
-        Overview: {
-          oneYear: {
-            name : '中信股份',
-            data : [63, 70, 68, 75, 60],
-            diag: "经分析，该企业存在如下问题，综合评定结果为无风险文字内容文字内",
-            grade: 30,
-            abilityList: [
-              {
-                title: "盈利能力",
-                value: 78,
-                icon_name:"icongeneral_score_profit"
-              },
-              {
-                title: "现金流",
-                value:65,
-                icon_name:"icongeneral_score_cash"
-              },
-              {
-                title: "成长能力",
-                value:34,
-                icon_name:"icongeneral_score_grow"
-              },
-              {
-                title: "偿债能力",
-                value:45,
-                icon_name:"icongeneral_score_debt"
-              },
-              {
-                title: "运营能力",
-                value:98,
-                icon_name:"icongeneral_score_operate"
-              },
-            ]
-          },
-          threeYear: {
-            name : '中信股份',
-            data : [53, 40, 38, 55, 70],
-            diag: "经分析，该企业存在如下问题，综合评定结果为无风险文字内容文字内",
-            grade: 70,
-            abilityList: [
-              {
-                title: "盈利能力",
-                value: 78,
-                icon_name:"icongeneral_score_profit"
-              },
-              {
-                title: "现金流",
-                value:65,
-                icon_name:"icongeneral_score_cash"
-              },
-              {
-                title: "成长能力",
-                value:34,
-                icon_name:"icongeneral_score_grow"
-              },
-              {
-                title: "偿债能力",
-                value:45,
-                icon_name:"icongeneral_score_debt"
-              },
-              {
-                title: "运营能力",
-                value:98,
-                icon_name:"icongeneral_score_operate"
-              },
-            ]
-          },
-          fiveYear: {
-            name : '中信股份',
-            data : [58, 65, 54, 35, 78],
-            diag: "经分析，该企业存在如下问题，综合评定结果为无风险文字内容文字内",
-            grade: 80,
-            abilityList: [
-              {
-                title: "盈利能力",
-                value: 58,
-                icon_name:"icongeneral_score_profit"
-              },
-              {
-                title: "现金流",
-                value:65,
-                icon_name:"icongeneral_score_cash"
-              },
-              {
-                title: "成长能力",
-                value:54,
-                icon_name:"icongeneral_score_grow"
-              },
-              {
-                title: "偿债能力",
-                value:35,
-                icon_name:"icongeneral_score_debt"
-              },
-              {
-                title: "运营能力",
-                value:78,
-                icon_name:"icongeneral_score_operate"
-              },
-            ]
-          },
-        },
-        rank: {
-          compare: "财务状况好于67%的企业",
-          date: ["2017第一季度", "2017中报", "2017第三季度", "2017年报"],
-          name: "中信股份",
-          data: [66, 52, 96, 34]
-        },
-        income: {
-          compare: "业绩收益好于67%的企业",
-          date: ["2017第一季度", "2017中报", "2017第三季度", "2017年报"],
-          incomeData: [
-            {
-              name: "中信股份",
-              data: [2.5, 1.8, -2.1, 1.5]
-            },
-            {
-              name: "平均行业",
-              data: [-0.6, 1.3, 2.5, 1.7]
-            }
-          ]
-        },
-        ysnl: { //盈利能力
-          score: 77.9,
-          dataSource: [
-            {
-              key: '1',
-              norm: '流动比率',
-              rank: '22/165',
-              status: 0
-            }, {
-              key: '2',
-              norm: '现金比例',
-              rank: '42/165',
-              status: 1
-            },{
-              key: '3',
-              norm: '已获利息倍数',
-              rank: '52/165',
-              status: 0
-            },
-          ]
-        },
-        cznl: { //偿债能力
-          score: 30.9,
-          dataSource: [
-            {
-              key: '1',
-              norm: '流动比率',
-              rank: '22/165',
-              status: 0
-            }, {
-              key: '2',
-              norm: '现金比例',
-              rank: '42/165',
-              status: 1
-            },{
-              key: '3',
-              norm: '已获利息倍数',
-              rank: '52/165',
-              status: 0
-            },
-          ]
-        },
-        czx: { //成长性
-          score: 60.9,
-          dataSource: [
-            {
-              key: '1',
-              norm: '流动比率',
-              rank: '22/165',
-              status: 1
-            }, {
-              key: '2',
-              norm: '现金比例',
-              rank: '42/165',
-              status: 1
-            },{
-              key: '3',
-              norm: '已获利息倍数',
-              rank: '52/165',
-              status: 0
-            },
-          ]
-        },
-        sjlist: [ //近期风险事件
-          {
-            title: "内幕交易中信被证监会处罚3.12亿元",
-            date: "2019.03.12",
-            score:30
-          },
-          {
-            title: "内幕交易中信被证监会处罚3.12亿元",
-            date:"2019.03.12",
-            score:60
-          },
-          {
-            title: "内幕交易中信被证监会处罚3.12亿元内幕交易中信被证监会处罚",
-            date:"2019.03.12",
-            score:90
-          },
-          {
-            title: "内幕交易中信被证监会处罚3.12亿元",
-            date:"2019.03.12",
-            score:30
-          },
-          {
-            title: "内幕交易中信被证监会处罚3.12亿元",
-            date:"2019.03.12",
-            score:90
-          },
-        ],
-        qycb: [//企业财报
-          {
-            img: "/images/caibao.png",
-            title: "1中信股份公布2018年第三季度财报",
-            date:"2019.03.12"
-          },
-          {
-            img: "/images/caibao.png",
-            title: "2中信股份公布2018年第三季度财报",
-            date:"2019.03.12"
-          },
-          {
-            img: "/images/caibao.png",
-            title: "3中信股份公布2018年第三季度财报,中信股份公布2018年第三季度财报",
-            date:"2019.03.12"
-          },
-          {
-            img: "/images/caibao.png",
-            title: "4中信股份公布2018年第三季度财报",
-            date:"2019.03.12"
-          },
-          {
-            img: "/images/caibao.png",
-            title: "5中信股份公布2018年第三季度财报",
-            date:"2019.03.12"
-          },
-          {
-            img: "/images/caibao.png",
-            title: "6中信股份公布2018年第三季度财报",
-            date:"2019.03.12"
-          },
-        ]
-      }
+      scoreTitle: "评分",
+      more:"查看详情",
+      compare: "财务状况好于67%的企业",
+      company_logo: "/images/zhongxin_logo_l.png",
+      data: { }
     };
   }
   componentDidMount() {
     // To disabled submit button at the beginning.
     this.props.form.validateFields();
+    this.setState({
+      ...this.state,
+      data: {
+        financialGlobal: this.props.financialGlobal,
+        financialQualityRank: this.props.financialQualityRank,
+        financialReturn: this.props.financialReturn,
+        financialAbility: this.props.financialAbility,
+        financialEvent: this.props.financialEvent,
+      }
+    })
   }
   handleSubmit = (e: any) => {
     e.preventDefault();
@@ -716,7 +460,6 @@ class riskProfile extends Component<any, any> {
   };
   //根据分数 判断显示什么风险的图标
   tipRisk = (value: any) => { 
-    console.log(value)
     let str
     if (value == '无风险') { 
       str = <Icons type='iconannoucement_risk_n' className='iconannoucement_risk_n' />
@@ -731,295 +474,301 @@ class riskProfile extends Component<any, any> {
   render() {
     const {getFieldDecorator,isFieldTouched,getFieldError,getFieldsError} = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-    const { scoreTitle, data: { company, oneYear, Overview, rank, income, ysnl, cznl, czx, sjlist, qycb } } = this.state
-    const { financialGlobal,financialAbility: { profitability, solvency, operating, currency, growth },financialEvent} = this.props
-    return (
-      <div className="risk-container">
-        <div className="search">
-          <Form onSubmit={this.handleSubmit}>
-            <Form.Item
-              // validateStatus={searchError ? 'error' : ''}
-              help={searchError || ""}
-            >
-              {getFieldDecorator("search", {
-                rules: [
-                  {
-                    required: false,
-                    message: "请输入公司名字，代码或简称"
-                  }
-                ]
-              })(<Input placeholder="请输入公司名字，代码或简称" />)}
-              <button className="btn-default">搜索</button>
-            </Form.Item>
-          </Form>
-        </div>
-        <Row gutter={20}>
-          <Col span={6}>
-            <Card bordered={false} className="risk-info">
-              <div className="logo">
-                <img src={company.logo} />
-                <h4>{financialGlobal.shor_name}</h4>
-              </div>
-              <div className="risk-info_inner">
-                <Paragraph ellipsis={{ rows: 2, expandable: true }}>
-                  {financialGlobal.description}
-                </Paragraph>
-              </div>
-              <ul className="risk-info_plate clearfloat">
-                <li>
-                  <h4>{financialGlobal.code}</h4>
-                  <h5>股票代码</h5>
-                </li>
-                <li>
-                  <h4>{financialGlobal.sector}</h4>
-                  <h5>所属板块</h5>
-                </li>
-                <li>
-                  <h4>{financialGlobal.list_date}</h4>
-                  <h5>上市日期</h5>
-                </li>
-                <li>
-                  <h4 className="red">{financialGlobal.risk_count}</h4>
-                  <h5>
-                    <Link to="">全年财务风险数量</Link>
-                  </h5>
-                </li>
-              </ul>
-            </Card>
-          </Col>
-          <Col span={18}>
-            <Card className="risk-gk" title="财务整体状况" bordered={false}>
-              
-              <Tabs defaultActiveKey="1" onChange={callback} className="tabs-car-absolute">
-                <TabPane tab="近 1 年" key="1"></TabPane>
-                <TabPane tab="近 3 年" key="2"></TabPane>
-                <TabPane tab="近 5 年" key="3"></TabPane>
-              </Tabs>
-              
-              <Row>
-                <Col md={12} lg={12} xl={10} className="radar">
-                  <EchartsWrapper
-                    option={OverviewOption(financialGlobal)}
-                    style={{ height: 360 }}
-                  />
-                </Col>
-                <Col md={12} lg={12} xl={14} className="radar-right">
-                <div className="top clearfloat">
-                  <div className="top-item">
-                    <span>财务风险等级：</span>
-                    <span className="em-list">
-                      <em>{Overview.oneYear.grade <= 35 ? <i>无风险</i> : null}</em>
-                      <em>{Overview.oneYear.grade > 35 && Overview.oneYear.grade <= 70 ? <i>低风险</i> : null}</em>
-                      <em>{Overview.oneYear.grade > 70 ? <i>高风险</i> : null}</em>
-                    </span>
-                  </div>
-                  <div className="top-item">
-                    <span>风险诊断：</span>
-                    <span className="oneEllipsis">{Overview.oneYear.diag}</span>
-                  </div>
-                  <div className="top-item">
-                    <span>财务综合评分：</span>
-                    <span>{80}</span>
-                  </div>
+    const { scoreTitle, more, company_logo, compare, data} = this.state
+    if (JSON.stringify(data) !== "{}") {
+      const { financialGlobal, financialQualityRank, financialReturn, financialAbility: { profitability, solvency, operating, currency, growth }, financialEvent } = data
+      return (
+        <div className="risk-container">
+          <div className="search">
+            <Form onSubmit={this.handleSubmit}>
+              <Form.Item
+                // validateStatus={searchError ? 'error' : ''}
+                help={searchError || ""}
+              >
+                {getFieldDecorator("search", {
+                  rules: [
+                    {
+                      required: false,
+                      message: "请输入公司名字，代码或简称"
+                    }
+                  ]
+                })(<Input placeholder="请输入公司名字，代码或简称" />)}
+                <button className="btn-default">搜索</button>
+              </Form.Item>
+            </Form>
+          </div>
+          <Row gutter={20}>
+            <Col span={6}>
+              <Card bordered={false} className="risk-info">
+                <div className="logo">
+                  <img src={company_logo} />
+                  <h4>{financialGlobal.shor_name}</h4>
                 </div>
-                <ul className="abilityList clearfloat">
+                <div className="risk-info_inner">
+                  <Paragraph ellipsis={{ rows: 2, expandable: true }}>
+                    {financialGlobal.description}
+                  </Paragraph>
+                </div>
+                <ul className="risk-info_plate clearfloat">
+                  <li>
+                    <h4>{financialGlobal.code}</h4>
+                    <h5>股票代码</h5>
+                  </li>
+                  <li>
+                    <h4>{financialGlobal.sector}</h4>
+                    <h5>所属板块</h5>
+                  </li>
+                  <li>
+                    <h4>{financialGlobal.list_date}</h4>
+                    <h5>上市日期</h5>
+                  </li>
+                  <li>
+                    <h4 className="red">{financialGlobal.risk_count}</h4>
+                    <h5>
+                      <Link to="">全年财务风险数量</Link>
+                    </h5>
+                  </li>
+                </ul>
+              </Card>
+            </Col>
+            <Col span={18}>
+              <Card className="risk-gk" title="财务整体状况" bordered={false}>
+                
+                <Tabs defaultActiveKey="1" onChange={callback} className="tabs-car-absolute">
+                  <TabPane tab="近 1 年" key="1"></TabPane>
+                  <TabPane tab="近 3 年" key="2"></TabPane>
+                  <TabPane tab="近 5 年" key="3"></TabPane>
+                </Tabs>
+                
+                <Row>
+                  <Col md={12} lg={12} xl={10} className="radar">
+                    <EchartsWrapper
+                      option={OverviewOption(financialGlobal)}
+                      style={{ height: 360 }}
+                    />
+                  </Col>
+                  <Col md={12} lg={12} xl={14} className="radar-right">
+                    <div className="top clearfloat">
+                      <div className="top-item">
+                        <span>财务风险等级：</span>
+                        <span className="em-list">
+                          <em>{financialGlobal.company.risk_level == '无风险' ? <i>无风险</i> : null}</em>
+                          <em>{financialGlobal.company.risk_level == '低风险' ? <i>低风险</i> : null}</em>
+                          <em>{financialGlobal.company.risk_level == '高风险' ? <i>高风险</i> : null}</em>
+                        </span>
+                      </div>
+                      <div className="top-item">
+                        <span>风险诊断：</span>
+                        <span className="oneEllipsis">{financialGlobal.company.risk_diagnosis}</span>
+                      </div>
+                      <div className="top-item">
+                        <span>财务综合评分：</span>
+                        <span>{financialGlobal.company.risk_score}</span>
+                      </div>
+                    </div>
+                    <ul className="abilityList clearfloat">
+                      {
+                        financialGlobal.company.company_score.map((item: any, key: any) => <li key={key}>
+                          <Icons type={score_icon[key]} className={score_icon[key]} />
+                          <span className="title">{item.name}: </span>
+                          <span className="value">{item.score}</span>
+                        </li>)
+                      }
+                    </ul>
+                    <div className="foot">
+                      <a href="#" className="btn-more">{more}</a>
+                    </div>
+                  </Col>
+                </Row>
+  
+              </Card>
+            </Col>
+            <Col span={24}>
+              <Card
+                className="risk-history"
+                title="近期风险走势"
+                bordered={false}
+              >
+                <EchartsWrapper
+                  option={historyOption(financialGlobal.risk_trend)}
+                  style={{ height: 330 }}
+                />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card
+                className="risk-zpm"
+                title="总排名"
+                bordered={false}
+                extra={<button className="btn-default"><Icons type='iconbtn_add' className='iconbtn_add' />增加对比</button>}
+              >
+                <div className="tip">{compare}</div>
+                <EchartsWrapper
+                  option={rankOption(financialQualityRank)}
+                  style={{ height: 360 }}
+                />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card
+                className="risk-yjsy"
+                title="业绩收益"
+                bordered={false}
+                extra={<button className="btn-default"><Icons type='iconbtn_edit' className='iconbtn_edit' />更改行业</button>}
+              >
+                <div className="tip">{compare}</div>
+                <EchartsWrapper
+                  option={incomeOption(financialReturn)}
+                  style={{ height: 360 }}
+                />
+              </Card>
+            </Col>
+  
+            <Col span={12}>
+              <Card
+                className="risk-ylnl"
+                title="盈利能力"
+                bordered={false}
+                extra={
+                  <span className="score">
+                    <Icons type="icongeneral_score" className="icongeneral_score" />
+                    <em>评分：</em>
+                    <span className={getColor(profitability.score)}>{profitability.score}</span>
+                  </span>
+                }
+              >
+                <Table
+                  rowKey={(record, index) => `${index}`}
+                  dataSource={profitability.index}
+                  columns={columns}
+                  pagination={false}
+                />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card className="risk-cznl" title="偿债能力"
+                bordered={false}
+                extra={
+                  <span className="score">
+                    <Icons type="icongeneral_score" className="icongeneral_score" />
+                    <em>{scoreTitle}: </em>
+                    <span className={getColor(solvency.score)}>{solvency.score}</span>
+                  </span>
+                }
+              >
+                <Table
+                  rowKey={(record, index) => `${index}`}
+                  dataSource={solvency.index}
+                  columns={columns}
+                  pagination={false}
+                />
+              </Card>
+            </Col>
+  
+            <Col span={12}>
+              <Card className="risk-yynl" title="营运能力" bordered={false}
+                extra={
+                  <span className="score">
+                    <Icons type="icongeneral_score" className="icongeneral_score" />
+                    <em>{scoreTitle}: </em>
+                    <span className={getColor(operating.score)}>{operating.score}</span>
+                  </span>
+                }
+              >
+                <Table
+                  rowKey={(record, index) => `${index}`}
+                  dataSource={operating.index}
+                  columns={columns}
+                  pagination={false}
+                />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card className="risk-xjzl" title="现金质量"
+                bordered={false}
+                extra={
+                  <span className="score">
+                    <Icons type="icongeneral_score" className="icongeneral_score" />
+                    <em>{scoreTitle}: </em>
+                    <span className={getColor(currency.score)}>{currency.score}</span>
+                  </span>
+                }
+              >
+                <Table
+                  rowKey={(record, index) => `${index}`}
+                  dataSource={currency.index}
+                  columns={columns}
+                  pagination={false}
+                />
+              </Card>
+            </Col>
+  
+            <Col span={12}>
+              <Card
+                className="risk-czx"
+                title="成长性"
+                bordered={false}
+                extra={
+                  <span className="score">
+                    <Icons type="icongeneral_score" className="icongeneral_score" />
+                    <em>{scoreTitle}: </em>
+                    <span className={getColor(growth.score)}>{growth.score}</span>
+                  </span>
+                }
+              >
+                <Table
+                  rowKey={(record, index) => `${index}`}
+                  dataSource={growth.index}
+                  columns={columns}
+                  pagination={false}
+                />
+              </Card>
+            </Col>
+            
+            <Col span={12}>
+              <Card
+                className="risk-sj"
+                title="近期风险事件"
+                bordered={false}
+                extra={<a href="#">查看更多</a>}
+              >
+                <ul className="ul-list">
                   {
-                    Overview.oneYear.abilityList.map((item: any, key: any) => <li key={key}>
-                      <Icons type={item.icon_name} className={item.icon_name} />
-                      <span className="title">{item.title}: </span>
-                      <span className="value">{item.value}</span>
-                    </li>)
+                    financialEvent.risk_event.slice(0, 4).map((item: any, idx: any) => <li key={idx}>{this.tipRisk(item.risk_level)}<a href="#">{item.title}</a><time>{item.date}</time></li>)
                   }
                 </ul>
-                <div className="foot">
-                  <a href="#" className="btn-more">查看详情</a>
-                </div>
-                </Col>
-              </Row> 
-
-            </Card>
-          </Col>
-          <Col span={24}>
-            <Card
-              className="risk-history"
-              title="近期风险走势"
-              bordered={false}
-            >
-              <EchartsWrapper
-                option={historyOption(oneYear)}
-                style={{ height: 330 }}
-              />
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card
-              className="risk-zpm"
-              title="总排名"
-              bordered={false}
-              extra={<button className="btn-default"><Icons type='iconbtn_add' className='iconbtn_add' />增加对比</button>}
-            >
-              <div className="tip">{rank.compare}</div>
-              <EchartsWrapper
-                option={rankOption(rank)}
-                style={{ height: 360 }}
-              />
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card
-              className="risk-yjsy"
-              title="业绩收益"
-              bordered={false}
-              extra={<button className="btn-default"><Icons type='iconbtn_edit' className='iconbtn_edit' />更改行业</button>}
-            >
-              <div className="tip">{income.compare}</div>
-              <EchartsWrapper
-                option={incomeOption(income)}
-                style={{ height: 360 }}
-              />
-            </Card>
-          </Col>
-
-          <Col span={12}>
-            <Card
-              className="risk-ylnl"
-              title="盈利能力"
-              bordered={false}
-              extra={
-                <span className="score">
-                  <Icons type="icongeneral_score" className="icongeneral_score" />
-                  <em>评分：</em>
-                  <span className={getColor(profitability.score)}>{profitability.score}</span>
-                </span>
-              }
-            >
-              <Table
-                rowKey={(record, index) => `${index}`}
-                dataSource={profitability.index}
-                columns={columns}
-                pagination={false}
-              />
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card className="risk-cznl" title="偿债能力"
-              bordered={false}
-              extra={
-                <span className="score">
-                  <Icons type="icongeneral_score" className="icongeneral_score" />
-                  <em>{scoreTitle}: </em>
-                  <span className={getColor(solvency.score)}>{solvency.score}</span>
-                </span>
-              }
-            >
-              <Table
-                rowKey={(record, index) => `${index}`}
-                dataSource={solvency.index}
-                columns={columns}
-                pagination={false}
-              />
-            </Card>
-          </Col>
-
-          <Col span={12}>
-            <Card className="risk-yynl" title="营运能力" bordered={false}
-            extra={
-              <span className="score">
-                <Icons type="icongeneral_score" className="icongeneral_score" />
-                <em>{scoreTitle}: </em>
-                <span className={getColor(operating.score)}>{operating.score}</span>
-              </span>
-            }
-            >
-              <Table
-                rowKey={(record, index) => `${index}`}
-                dataSource={operating.index}
-                columns={columns}
-                pagination={false}
-              />
-            </Card>
-          </Col>
-          <Col span={12}>
-            <Card className="risk-xjzl" title="现金质量"
-              bordered={false}
-              extra={
-                <span className="score">
-                  <Icons type="icongeneral_score" className="icongeneral_score" />
-                  <em>{scoreTitle}: </em>
-                  <span className={getColor(currency.score)}>{currency.score}</span>
-                </span>
-              }
-            >
-              <Table
-                rowKey={(record, index) => `${index}`}
-                dataSource={currency.index}
-                columns={columns}
-                pagination={false}
-              />
-            </Card>
-          </Col>
-
-          <Col span={12}>
-            <Card
-              className="risk-czx"
-              title="成长性"
-              bordered={false}
-              extra={
-                <span className="score">
-                  <Icons type="icongeneral_score" className="icongeneral_score" />
-                  <em>{scoreTitle}: </em>
-                  <span className={getColor(growth.score)}>{growth.score}</span>
-                </span>
-              }
-            >
-              <Table
-                rowKey={(record, index) => `${index}`}
-                dataSource={growth.index}
-                columns={columns}
-                pagination={false}
-              />
-            </Card>
-          </Col>
-          
-          <Col span={12}>
-            <Card
-              className="risk-sj"
-              title="近期风险事件"
-              bordered={false}
-              extra={<a href="#">查看更多</a>}
-            >
-              <ul className="ul-list">
-              {
-                  financialEvent.risk_event.slice(0, 4).map((item: any, idx: any) => <li key={idx}>{this.tipRisk(item.risk_level)}<a href="#">{item.title}</a><time>{item.date}</time></li> )
-              }
-              </ul>
-            </Card>
-          </Col>
-          <Col span={24}>
-            <Card
-              className="risk-report"
-              title="企业财报"
-              bordered={false}
-              extra={<a href="#">查看更多</a>}
-            >
-              <ul className="img-list">
-              {
-                  financialEvent.report.slice(0,5).map((item: any, idx: any) => <li key={idx}><a href="#" className="img_caibao">{item.title.slice(0,8)}</a><a href="#">{item.title}</a><time>{item.pub_date}</time></li> )
-              }
-              </ul>
-            </Card>
-          </Col>
-        </Row>
-      </div>
-    );
+              </Card>
+            </Col>
+            <Col span={24}>
+              <Card
+                className="risk-report"
+                title="企业财报"
+                bordered={false}
+                extra={<a href="#">查看更多</a>}
+              >
+                <ul className="img-list">
+                  {
+                    financialEvent.report.slice(0, 5).map((item: any, idx: any) => <li key={idx}><a href="#" className="img_caibao">{item.title.slice(0, 8)}</a><a href="#">{item.title}</a><time>{item.pub_date}</time></li>)
+                  }
+                </ul>
+              </Card>
+            </Col>
+          </Row>
+        </div>
+      );
+    } else { 
+      return <div>loading</div>
+    }
   }
 }
 const WrapSearch = Form.create()(riskProfile);
 const mapStateProps = (state: any) => {
   return {
+    financialGlobal: state.financialGlobal.results,
+    financialQualityRank: state.financialQualityRank.results,
+    financialReturn: state.financialReturn.results,
     financialAbility: state.financialAbility.results,
     financialEvent: state.financialEvent.results,
-    financialGlobal: state.financialGlobal.results,
   }
 }
 const mapDispatchToProps = {}

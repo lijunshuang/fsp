@@ -467,6 +467,7 @@ button{
       }
       .risk-ylnl,.risk-cznl,.risk-yynl,.risk-xjzl,.risk-xjzl,.risk-czx,.risk-cz,.risk-sj{
         max-height: 310px;
+        height:310px;
         overflow: hidden;
       }
       .tip{
@@ -522,8 +523,12 @@ button{
           }
         }
         .download{
-
-          button{
+          a{
+            display: block;
+            border: 1px solid;
+            text-align: center;
+          }
+          button,a{
             width:100%;
             border-color: #2A5082;
             color: #2A5082;
@@ -719,8 +724,8 @@ button{
   }
   //风险概况 详情
   .risk-details{
-  a{color:#3E74CA !important;}
-
+    a{color:#3E74CA !important;}
+    
     .ant-row{
       
       .risk-info{
@@ -731,6 +736,9 @@ button{
         }
         .download{
           margin-top: 40px;
+          .btn-default{
+
+          }
         }
       }
       .risk-gk{
@@ -1133,8 +1141,8 @@ button{
   html { 
     font-size:46%; 
   }
+  .ant-layout .risk-container .ant-row .risk-gk .ant-card-body .radar-right{padding: 0px 20px;}
   .ant-layout{
-
 
     .search{
       width:40%;
@@ -1209,7 +1217,7 @@ button{
       // left:55%;
 
     }
-
+    .risk-container .ant-row .risk-gk .ant-card-body .radar-right .abilityList li{width:50%;}
     .market{
       .count{
 

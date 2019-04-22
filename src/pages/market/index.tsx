@@ -124,6 +124,7 @@ class Home extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
+      data: {},
       currentTrade: '所有',
       currentYear: 'this_year'
     }
@@ -131,6 +132,9 @@ class Home extends Component<any, any> {
   componentDidMount() {
     // To disabled submit button at the beginning.
     this.props.form.validateFields();
+    this.setState({
+      data:this.props.riskHistoty['所有']
+    })
   }
   handleSubmit = (e: any) => {
     e.preventDefault();
@@ -145,7 +149,8 @@ class Home extends Component<any, any> {
   handleChange = (value:any)=> {
     console.log(`selected ${value}`);
     this.setState({
-      currentTrade: value
+      currentTrade: value,
+      data:this.props.riskHistoty[value]
     })
   }
   handleBlur=()=> {
@@ -196,122 +201,128 @@ class Home extends Component<any, any> {
   render() {
     const {getFieldDecorator,isFieldTouched,getFieldError,getFieldsError} = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-    const { results: { company_risk_rank, industry_risk_rank }, riskHistoty } = this.props
-    const trade = Object.keys(riskHistoty) //获取所有行业名称
-    console.log(riskHistoty)
-    console.log(this.state)
-    return (
-      <div className="market">
-        <div className="search">
-          <Form onSubmit={this.handleSubmit}>
-            <Form.Item
-              // validateStatus={searchError ? 'error' : ''}
-              help={searchError || ""}
-            >
-              {getFieldDecorator("search", {
-                rules: [
-                  {
-                    required: false,
-                    message: "请输入公司名字，代码或简称"
-                  }
-                ]
-              })(<Input placeholder="请输入公司名字，代码或简称" />)}
-              <button className="btn-default">搜索</button>
-            </Form.Item>
-          </Form>
-        </div>
-        <Row gutter={20}>
-          <Col md={15} lg={16} xl={17}>
-            <Row className="count">
-              {this.count().map((item: any, idx: any) => (
-                <Col span={8} key={idx}>
-                  <Row gutter={0}>
-                    <Col span={8}><Icons type={item.icon} /></Col>
-                    <Col span={16}>
-                      <span className="title">{item.title}</span>
-                      <span className="number">{item.number}</span>
-                    </Col>
-                  </Row>
-                  <Divider type="vertical" />
-                </Col>
-              ))}
-            </Row>
+    const {data} = this.state
+    if (JSON.stringify(data) !== "{}") { 
+      const { results: { company_risk_rank, industry_risk_rank }, riskHistoty } = this.props
+      const trade = Object.keys(riskHistoty) //获取所有行业名称
 
-            <Card
-              className="history-box"
-              title="历史走势"
-              bordered={false}
-            >
-              <Select
-                showSearch
-                defaultValue="所有"
-                style={{ width: 120 }} 
-                onChange={this.handleChange}
-                onFocus={this.handleFocus}
-                onBlur={this.handleBlur}
-                filterOption={(input:any, option:any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+      console.log(riskHistoty)
+      return (
+        <div className="market">
+          <div className="search">
+            <Form onSubmit={this.handleSubmit}>
+              <Form.Item
+                // validateStatus={searchError ? 'error' : ''}
+                help={searchError || ""}
               >
-                {
-                  trade.map((item: any, idx: any) => <Option key={idx} value={item}>{item}</Option>)
-                }
-              </Select>
-              
-              <Tabs defaultActiveKey="1" onChange={this.callback}>
-                <TabPane tab="近 1 年" key="this_year">
-                  <EchartsWrapper option={getOption(riskHistoty.所有.this_year)} style={{height:450}} />
-                </TabPane>
-
-                <TabPane tab="近 3 年" key="last_3_year">
-                  <EchartsWrapper option={getOption(riskHistoty.所有.last_3_year)} style={{height:450}} />
-                </TabPane>
-
-                <TabPane tab="近 5 年" key="last_5_year">
-                  <EchartsWrapper option={getOption(riskHistoty.所有.last_5_year)} style={{height:450}} />
-                </TabPane>
-              </Tabs>
-            </Card>
-          </Col>
-
-          <Col md={9} lg={8} xl={7}>
-            <Card
-              title="本报告期行业风险榜"
-              bordered={false}
-              className="risk-list"
-            >
-              <ul>
-                {industry_risk_rank.map((item: any, idx: any) => (
-                  <li key={idx}>
-                    <span className="id">{idx + 1}. </span>
-                    <Icons type={this.getIcon(item.name)} />
-                    <span className="title">{item.name}</span>
-                    <span className="number">{item.score}</span>
-                  </li>
+                {getFieldDecorator("search", {
+                  rules: [
+                    {
+                      required: false,
+                      message: "请输入公司名字，代码或简称"
+                    }
+                  ]
+                })(<Input placeholder="请输入公司名字，代码或简称" />)}
+                <button className="btn-default">搜索</button>
+              </Form.Item>
+            </Form>
+          </div>
+          <Row gutter={20}>
+            <Col md={15} lg={16} xl={17}>
+              <Row className="count">
+                {this.count().map((item: any, idx: any) => (
+                  <Col span={8} key={idx}>
+                    <Row gutter={0}>
+                      <Col span={8}><Icons type={item.icon} /></Col>
+                      <Col span={16}>
+                        <span className="title">{item.title}</span>
+                        <span className="number">{item.number}</span>
+                      </Col>
+                    </Row>
+                    <Divider type="vertical" />
+                  </Col>
                 ))}
-              </ul>
-            </Card>
-            <Card
-              title="本报告期财务异动榜"
-              bordered={false}
-              className="risk-list fchange-list"
-            >
-              <ul>
-                {company_risk_rank.map((item: any, idx: any) => (
-                  <li key={idx}>
-                    <span className="id">{idx + 1}. </span>
-                    <img src={img.company_logo} />
-                    <span className="title">{item.name}</span>
-                    <span className="number">
-                      <Icons type="iconhome_rank_increase" />
-                      {item.score}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          </Col>
-        </Row>
-      </div>
-    );
+              </Row>
+  
+              <Card
+                className="history-box"
+                title="历史走势"
+                bordered={false}
+              >
+                <Select
+                  showSearch
+                  defaultValue="所有"
+                  style={{ width: 120 }} 
+                  onChange={this.handleChange}
+                  // onFocus={this.handleFocus}
+                  // onBlur={this.handleBlur}
+                  filterOption={(input:any, option:any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                >
+                  {
+                    trade.map((item: any, idx: any) => <Option key={idx} value={item}>{item}</Option>)
+                  }
+                </Select>
+                
+                <Tabs defaultActiveKey="this_year" onChange={this.callback}>
+                  <TabPane tab="近 1 年" key="this_year">
+                    <EchartsWrapper option={getOption(riskHistoty[this.state.currentTrade].this_year)} style={{height:450}} />
+                  </TabPane>
+  
+                  <TabPane tab="近 3 年" key="last_3_year">
+                    <EchartsWrapper option={getOption(riskHistoty[this.state.currentTrade].last_3_year)} style={{height:450}} />
+                  </TabPane>
+  
+                  <TabPane tab="近 5 年" key="last_5_year">
+                    <EchartsWrapper option={getOption(riskHistoty[this.state.currentTrade].last_5_year)} style={{height:450}} />
+                  </TabPane>
+                </Tabs>
+              </Card>
+            </Col>
+  
+            <Col md={9} lg={8} xl={7}>
+              <Card
+                title="本报告期行业风险榜"
+                bordered={false}
+                className="risk-list"
+              >
+                <ul>
+                  {industry_risk_rank.map((item: any, idx: any) => (
+                    <li key={idx}>
+                      <span className="id">{idx + 1}. </span>
+                      <Icons type={this.getIcon(item.name)} />
+                      <span className="title">{item.name}</span>
+                      <span className="number">{item.score}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+              <Card
+                title="本报告期财务异动榜"
+                bordered={false}
+                className="risk-list fchange-list"
+              >
+                <ul>
+                  {company_risk_rank.map((item: any, idx: any) => (
+                    <li key={idx}>
+                      <span className="id">{idx + 1}. </span>
+                      <img src={img.company_logo} />
+                      <span className="title">{item.name}</span>
+                      <span className="number">
+                        <Icons type="iconhome_rank_increase" />
+                        {item.score}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            </Col>
+          </Row>
+        </div>
+      );
+    } else {
+      return <div>loading</div>
+    }
+    
   }
 }
 const WrapSearch = Form.create()(Home);
