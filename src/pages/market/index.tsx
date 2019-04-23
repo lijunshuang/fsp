@@ -1,9 +1,11 @@
 import { Card, Col, Divider, Form, Icon, Input, Row, Select, Statistic, Tabs } from 'antd';
+import axios from 'axios';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { getData } from '../../actions';
+// import { getData } from '../../actions';
+import { riskEvents, riskHistory } from '../../api';
 import EchartsWrapper from '../../components/EchartsWrapper';
 import Icons from '../../components/Icons';
 
@@ -11,30 +13,9 @@ function hasErrors(fieldsError: any) {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
 }
 
-
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
-// const trade = ["所有","房地产","金融","餐饮","环保","地产","科技","农林牧渔"]//行业选项
-
-const oneYear = {
-  text: '指标：风险企业数',
-  date: ['2017-01-01 至 2017-03-31', '2017-04-01 至 2017-06-30', '2017-07-01 至 2017-09-30', '2017-10-01 至 2017-12-31'],
-  name: "风险",
-  data: [20, 52, 76, 84],
-}
-const threeYear = {
-  text: '指标：风险企业数',
-  date: ['2016', '2017', '2018'],
-  name: "风险",
-  data: [50, 152, 76],
-}
-const fiveYear = {
-  text: '指标：风险企业数',
-  date: ['2014','2015', '2016', '2017', '2018'],
-  name: "风险",
-  data: [120, 252, 176, 184,69],
-}
 //echart 配置项
 const getOption = (val: any) => {
   const date = val.map((item:any)=>item.date)
@@ -120,20 +101,32 @@ const getOption = (val: any) => {
 const img = {
   company_logo:"/images/zhongxin_logo.png"
 }
+
 class Home extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
       data: {},
       currentTrade: '所有',
-      currentYear: 'this_year'
+      currentYear: 'this_year',
+      risk_events: {},
+      risk_history: {},
     }
   }
-  componentDidMount() {
+  async componentDidMount() {
     // To disabled submit button at the beginning.
     this.props.form.validateFields();
+    let risk_events = await axios.get(riskEvents).then((res)=> res.data).catch((error:any)=> {
+    　　alert(error);
+    });
+    let risk_history = await axios.get(riskHistory).then((res)=> res.data).catch((error:any)=> {
+    　　alert(error);
+    });
+
     this.setState({
-      data:this.props.riskHistoty['所有']
+      risk_events: risk_events.payload,
+      risk_history: risk_history.payload,
+      data:risk_history.payload['所有']
     })
   }
   handleSubmit = (e: any) => {
@@ -150,7 +143,7 @@ class Home extends Component<any, any> {
     console.log(`selected ${value}`);
     this.setState({
       currentTrade: value,
-      data:this.props.riskHistoty[value]
+      data:this.state.risk_history[value]
     })
   }
   handleBlur=()=> {
@@ -174,17 +167,17 @@ class Home extends Component<any, any> {
     [
       {
         title: "今日财务风险事件",
-        number: this.props.results.today_event_count || 0,
+        number: this.state.risk_events.today_event_count || 0,
         icon:"iconhome_today_finance"
       },
       {
         title: "今日风险企业数",
-        number: this.props.results.today_company_count || 0,
+        number: this.state.risk_events.today_company_count || 0,
         icon:"iconhome_today_company"
       },
       {
         title: "今日订阅企业财务风险数",
-        number: this.props.results.today_subscribed_event || 0,
+        number: this.state.risk_events.today_subscribed_event || 0,
         icon:"iconhome_today_subscribe"
       }
     ]
@@ -201,12 +194,10 @@ class Home extends Component<any, any> {
   render() {
     const {getFieldDecorator,isFieldTouched,getFieldError,getFieldsError} = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-    const {data} = this.state
+    const {data,risk_events: { company_risk_rank, industry_risk_rank },risk_history} = this.state
     if (JSON.stringify(data) !== "{}") { 
-      const { results: { company_risk_rank, industry_risk_rank }, riskHistoty } = this.props
-      const trade = Object.keys(riskHistoty) //获取所有行业名称
+      const trade = Object.keys(risk_history) //获取所有行业名称
 
-      console.log(riskHistoty)
       return (
         <div className="market">
           <div className="search">
@@ -265,15 +256,15 @@ class Home extends Component<any, any> {
                 
                 <Tabs defaultActiveKey="this_year" onChange={this.callback}>
                   <TabPane tab="近 1 年" key="this_year">
-                    <EchartsWrapper option={getOption(riskHistoty[this.state.currentTrade].this_year)} style={{height:450}} />
+                    <EchartsWrapper option={getOption(risk_history[this.state.currentTrade].this_year)} style={{height:450}} />
                   </TabPane>
   
                   <TabPane tab="近 3 年" key="last_3_year">
-                    <EchartsWrapper option={getOption(riskHistoty[this.state.currentTrade].last_3_year)} style={{height:450}} />
+                    <EchartsWrapper option={getOption(risk_history[this.state.currentTrade].last_3_year)} style={{height:450}} />
                   </TabPane>
   
                   <TabPane tab="近 5 年" key="last_5_year">
-                    <EchartsWrapper option={getOption(riskHistoty[this.state.currentTrade].last_5_year)} style={{height:450}} />
+                    <EchartsWrapper option={getOption(risk_history[this.state.currentTrade].last_5_year)} style={{height:450}} />
                   </TabPane>
                 </Tabs>
               </Card>
@@ -326,12 +317,13 @@ class Home extends Component<any, any> {
   }
 }
 const WrapSearch = Form.create()(Home);
-const mapStateProps = (state: any) => {
-  return {
-    results: state.riskEvents.results,
-    riskHistoty: state.riskHistory.results,
-  }
-}
-const mapDispatchToProps = {getData}
-export default connect(mapStateProps,mapDispatchToProps)(WrapSearch)
+// const mapStateProps = (state: any) => {
+//   return {
+//     results: state.riskEvents.results,
+//     riskHistoty: state.riskHistory.results,
+//   }
+// }
+// const mapDispatchToProps = {getData}
+// export default connect(mapStateProps)(WrapSearch)
+export default WrapSearch
 

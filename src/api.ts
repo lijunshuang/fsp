@@ -1,35 +1,29 @@
 
-const ipaddress = "127.0.0.1"
-// const ipaddress = "192.168.5.216"
+// const ipaddress = "127.0.0.1"
+const ipaddress = "192.168.5.161"
 const port = "5001"
 // 服务器端调试
-const financial_analysis = `http://${ipaddress}:${port}/financial_analysis`
-const analysis_all = `http://${ipaddress}:${port}/financial/analysis_all`             // post,所有数据
-const classifyApi = `http://${ipaddress}:${port}/financial/company_classify`         // post,公司分组
-const fraudApi = `http://${ipaddress}:${port}/financial/fraud`                       // post,财务舞弊
-const abnormalApi = `http://${ipaddress}:${port}/financial/detection/multi_method`   // post,异常挖掘多种
-const abnormalAll = `http://${ipaddress}:${port}/financial/outlier_detection`        //get,公司异常展示界面
-const overallApi = `http://${ipaddress}:${port}/financial/detection/overall`         // post,异常挖掘整体界面
-const basicInfoApi = `http://${ipaddress}:${port}/company/basic_info`                // post,公司基本信息
-const riskApi = `http://${ipaddress}:${port}/financial/risk`                         // post,财务风险
-const ruledApi = `http://${ipaddress}:${port}/financial/detection/overall/ruled`    // post,异常挖掘列表页--规则方法
-const unsupervisedApi = `http://${ipaddress}:${port}/financial/detection/overall/unsupervised` // post,异常挖掘列表页--无监督方法异常挖掘
-const violencedApi = `http://${ipaddress}:${port}/financial/detection/overall/violence`        // post,异常挖掘列表页--暴力方法异常挖掘
-const revenuedApi = `http://${ipaddress}:${port}/financial/detection/overall/revenue`        // post,异常挖掘列表页--收入/成本异常
+const riskEvents = `http://${ipaddress}:${port}/api/v1/risk_events`        // get 首页数据
+const riskHistory = `http://${ipaddress}:${port}/api/v1/risk_history`      // get 首页 历史走势
+const financialGlobal = `http://${ipaddress}:${port}/api/v1/financial_global`      // get 概况页
+const financialQualityRank = `http://${ipaddress}:${port}/api/v1/financial_quality_rank`      // get / post 总排名
+const financialReturn = `http://${ipaddress}:${port}/api/v1/financial_return`      // get / post 业绩收益
+const financialAbility = `http://${ipaddress}:${port}/api/v1/financial_ability`      // get 概况页  盈利、偿债等五种能力
+const financialEvent = `http://${ipaddress}:${port}/api/v1/financial_event`      // get 概况页  近期风险事件 和 企业财报 
+const detailGlobal = `http://${ipaddress}:${port}/api/v1/financial_detail_global`      // get 财务风险详情页
+const detailProfitability = `http://${ipaddress}:${port}/api/v1/financial_detail_profitability`      // get 财务风险详情页  盈利能力
+const detailSolvency = `http://${ipaddress}:${port}/api/v1/financial_detail_solvency`      // get 财务风险详情页    偿债能力
 
 
 export {
-    financial_analysis,
-    analysis_all,
-    classifyApi,
-    fraudApi,
-    abnormalApi,
-    abnormalAll,
-    overallApi,
-    riskApi,
-    basicInfoApi,
-    ruledApi,
-    unsupervisedApi,
-    violencedApi,
-    revenuedApi
+    riskEvents,
+    riskHistory,
+    financialGlobal,
+    financialQualityRank,
+    financialReturn,
+    financialAbility,
+    financialEvent,
+    detailGlobal,
+    detailProfitability,
+    detailSolvency
 }

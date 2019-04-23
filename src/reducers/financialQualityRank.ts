@@ -12,6 +12,7 @@ const initState = {
         ]
     }
 }
+
 export default (state = initState, action: any) => {
     switch (action.type) {
         case 'GETDATA':

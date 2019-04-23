@@ -1,11 +1,14 @@
 import {
-    Button, Card, Col, Divider, Form, Icon, Input, Row, Select, Table, Tabs, Tooltip, Typography
+    Button, Card, Col, Divider, Form, Icon, Input, Modal, Row, Select, Table, Tabs, Tooltip,
+    Typography
 } from 'antd';
+import axios from 'axios';
 import * as echarts from 'echarts';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+import { detailGlobal, detailProfitability, detailSolvency } from '../../api';
 import EchartsWrapper from '../../components/EchartsWrapper';
 import Icons from '../../components/Icons';
 import Loading from '../../components/Loading';
@@ -101,6 +104,7 @@ const trendOption = (value: any) => {
 
 //盈利能力 评分
 const scoreOption = (value: any) => { 
+  let score = value ? value.score : 0
   const option = {
     text:"评分",
     tooltip: {
@@ -118,7 +122,7 @@ const scoreOption = (value: any) => {
         name: '检测结果',
         type: 'gauge',
         detail: { formatter: '{value}' },
-        data: [{ value: value.score, name: '评分' }],
+        data: [{ value: score, name: '评分' }],
         axisTick:{
           show:false,//不显示刻度线
         },
@@ -387,7 +391,6 @@ function getIdx(value: any) {
   return idx
 }
 
-
 class riskDetails extends Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -396,16 +399,24 @@ class riskDetails extends Component<any, any> {
         profitability:"盈利能力",
         solvency:"偿债能力",
       },
-      data: {},
+      data: "",
     };
   }
-  componentDidMount() {
+  async componentDidMount() {
+    let global = await axios.get(detailGlobal).then((res)=> res.data).catch((error:any)=> {
+      　　alert(error);
+      });
+    let profit = await axios.get(detailProfitability).then((res)=> res.data).catch((error:any)=> {
+      　　alert(error);
+      });
+    let solvency = await axios.get(detailSolvency).then((res)=> res.data).catch((error:any)=> {
+      　　alert(error);
+      });
     this.setState({
-      data: {
-        global: this.props.financialDetailGlobal,
-        profit: this.props.financialDetailProfit,
-        solvency: this.props.financialDetailSolvency,
-      }
+      global: global,
+      profit: profit.payload,
+      solvency: solvency.payload,
+      data: global.payload.code
     })
   }
   handleSubmit = (e: any) => {
@@ -431,25 +442,21 @@ class riskDetails extends Component<any, any> {
 
   render() {
     const {data,title}= this.state
-    if (JSON.stringify(data) !== "{}") {
-      const { data:{global, profit, solvency} } = this.state;
-      // const historyArr = profit.index_score.map((item: any) => item.history_score)
-      // const source = historyArr.map((item: any) => item.data)
-      console.log(profit.index_score)
+    if (data) {
+      const { global, profit, solvency } = this.state;
       const titleArr = Object.keys(global.risk_detail) // 获取五种能力的标题
 
-      let source = (function () { 
-        let arr:any = []
-        profit.index_score.forEach((i:any) => {
-          arr.push({
-            title: i.index,
-            name:i.history_score.name,
-            date: i.history_score.data.map((j: any) => j.date)
-          })
-        });
-        return arr
-      })()
-      console.log(source)
+      // let source = (function () { 
+      //   let arr:any = []
+      //   profit.index_score.forEach((i:any) => {
+      //     arr.push({
+      //       title: i.index,
+      //       name:i.history_score.name,
+      //       date: i.history_score.data.map((j: any) => j.date)
+      //     })
+      //   });
+      //   return arr
+      // })()
       return (
         <div className="risk-container risk-details">
           <Row gutter={20}>
@@ -557,7 +564,7 @@ class riskDetails extends Component<any, any> {
                 <Table
                   className="some-table"
                   rowKey={(record, index) => `${index}`}
-                  dataSource={[]}
+                  dataSource={profit.dataSource}
                   columns={profitCol()} size="small"
                   pagination={false} />
 
@@ -607,7 +614,7 @@ class riskDetails extends Component<any, any> {
                   </Col>
                   <Col span={6} className="risk-ysnl_fx">
                     <h3>偿债能力分析</h3>
-                    <Paragraph className="info" ellipsis={{ rows: 5, expandable: false }}>{solvency.global_score.analysis}</Paragraph>
+                    {/* <Paragraph className="info" ellipsis={{ rows: 5, expandable: false }}>{solvency.global_score.analysis}</Paragraph> */}
                   </Col>
                   <Col span={12} className="box-shadow">
                     <h4>风险指标解析 <a>更换指标</a></h4>
@@ -680,14 +687,15 @@ class riskDetails extends Component<any, any> {
     }
   }
 }
-const mapStateProps = (state: any) => {
-  return {
-    financialDetailGlobal: state.financialDetailGlobal.results,
-    financialDetailProfit: state.financialDetailProfit.results,
-    financialDetailSolvency: state.financialDetailSolvency.results,
+// const mapStateProps = (state: any) => {
+//   return {
+//     financialDetailGlobal: state.financialDetailGlobal.results,
+//     financialDetailProfit: state.financialDetailProfit.results,
+//     financialDetailSolvency: state.financialDetailSolvency.results,
 
-  }
-}
-const mapDispatchToProps = {}
-export default connect(mapStateProps)(riskDetails)
+//   }
+// }
+// const mapDispatchToProps = {}
+// export default connect(mapStateProps)(riskDetails)
+export default riskDetails
 

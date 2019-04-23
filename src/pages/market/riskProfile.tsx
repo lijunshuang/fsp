@@ -1,12 +1,21 @@
 import {
-    Button, Card, Col, Divider, Form, Icon, Input, Row, Select, Table, Tabs, Tooltip, Typography
+    Button, Card, Col, Divider, Form, Icon, Input, Modal, Row, Select, Spin, Table, Tabs, Tooltip,
+    Typography
 } from 'antd';
+import axios from 'axios';
+import debounce from 'lodash/debounce';
+import { func } from 'prop-types';
+import qs from 'querystring';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+import {
+    financialAbility, financialEvent, financialGlobal, financialQualityRank, financialReturn
+} from '../../api';
 import EchartsWrapper from '../../components/EchartsWrapper';
 import Icons from '../../components/Icons';
+import { keepTwo } from '../../utils';
 
 function hasErrors(fieldsError: any) {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
@@ -205,8 +214,29 @@ const historyOption = (value: any) => {
 };
 //总排名
 const rankOption = (value: any) => {
-  const date = value.history_score.map((item:any)=>item.date) //时间
-  const data = value.history_score.map((item:any)=>item.value) // 获取数据
+  const date = value[0].history_score.map((item:any)=>item.date) //时间
+  // const data = value.history_score.map((item:any)=>item.value) // 获取数据
+  const color = ["#1890FF", "#B53ECE", "#6B798E"]
+  const lineStyle = {
+    type: "line",
+    symbolSize: 8,   //折线点的大小
+    label: { //线上的文字
+      normal: {
+        show: true,
+        position: 'top'
+      }
+    },
+    // 折线颜色
+    itemStyle: {
+      normal: {
+          color: '#53A0FD',
+          lineStyle: {
+            color: '#53A0FD',
+            width:3
+          }
+      },
+    },
+  }
   const option = {
     tooltip: {
       trigger: "axis",
@@ -250,30 +280,18 @@ const rankOption = (value: any) => {
         }
       }
     },
-    series: [
-      {
-        name: value.short_name,
-        type: "line",
-        symbolSize: 8,   //折线点的大小
-        label: { //线上的文字
-          normal: {
-            show: true,
-            position: 'top'
-          }
-        },
-        // 折线颜色
-        itemStyle: {
-          normal: {
-              color: '#53A0FD',
-              lineStyle: {
-                color: '#53A0FD',
-                width:3
-              }
-          },
-        },
-        data: data
-      }
-    ]
+    color,//线的颜色
+    series: (function () { 
+      let arr:any = []
+        value.forEach((i:any) => {
+          arr.push({
+            ...lineStyle,
+            name: i.short_name,
+            data: i.history_score.map((item:any)=>item.value.toFixed(0))
+          })
+        });
+      return arr
+    })()
   };
   return option;
 };
@@ -376,10 +394,7 @@ const incomeOption = (value: any) => {
   };
   return option;
 };
-//select change
-function handleChange(value: any) {
-  console.log(`selected ${value}`);
-}
+
 function callback(key: any) {
   console.log(key);
 }
@@ -396,6 +411,8 @@ function getColor(value: any) {
   }
   return color
 }
+
+
 
 const columns = [
   {
@@ -424,30 +441,59 @@ const columns = [
       </span>,
   }
 ];
-const score_icon = ["icongeneral_score_profit","icongeneral_score_debt","icongeneral_score_operate","icongeneral_score_grow","icongeneral_score_cash"]
+const score_icon = ["icongeneral_score_profit", "icongeneral_score_debt", "icongeneral_score_operate", "icongeneral_score_grow", "icongeneral_score_cash"]
+
+const codeList = ["000001","000002","000003","000004","000005","000006","000007"]
+
 class riskProfile extends Component<any, any> {
   constructor(props: any) {
     super(props);
+    let lastFetchId,fetchUser
+    lastFetchId = 0;
+    // fetchUser = debounce(this.fetchUser, 800);
     this.state = {
+      // visible:true,
       scoreTitle: "评分",
       more:"查看详情",
       compare: "财务状况好于67%的企业",
       company_logo: "/images/zhongxin_logo_l.png",
-      data: { }
+      data: {},
+      changeArr: [],
+      selectData: [],
+      selectValue: [],
+      fetching: false,
     };
   }
-  componentDidMount() {
+
+  async componentDidMount() {
     // To disabled submit button at the beginning.
     this.props.form.validateFields();
+      let financial_global = await axios.get(financialGlobal).then((res)=> res.data).catch((error:any)=> {
+      　　alert(error);
+      });
+      let quality_rank = await axios.get(financialQualityRank).then((res)=> res.data).catch((error:any)=> {
+      　　alert(error);
+      });
+      let financial_return = await axios.get(financialReturn).then((res)=> res.data).catch((error:any)=> {
+      　　alert(error);
+      });
+      let financial_ability = await axios.get(financialAbility).then((res)=> res.data).catch((error:any)=> {
+      　　alert(error);
+      });
+      let financial_event = await axios.get(financialEvent).then((res)=> res.data).catch((error:any)=> {
+      　　alert(error);
+      });
+
     this.setState({
       ...this.state,
       data: {
-        financialGlobal: this.props.financialGlobal,
-        financialQualityRank: this.props.financialQualityRank,
-        financialReturn: this.props.financialReturn,
-        financialAbility: this.props.financialAbility,
-        financialEvent: this.props.financialEvent,
-      }
+        financial_global: financial_global.payload,
+        quality_rank: quality_rank.payload,
+        financial_return: financial_return.payload,
+        financial_ability: financial_ability.payload,
+        financial_event: financial_event.payload,
+      },
+      changeArr : [financial_return.payload]
     })
   }
   handleSubmit = (e: any) => {
@@ -470,14 +516,69 @@ class riskProfile extends Component<any, any> {
     }
     return str
   }
+//select change
+  handleChange = async (value: any)=> {
+    console.log(`selected ${value}`);
+    let req = qs.stringify({
+      "code":"000002"
+    })
+    let quality_rank = await axios.post(financialQualityRank,req).then((res)=> res.data).catch((error:any)=> {
+      　　alert(error);
+    });
+    this.setState({
+      changeArr : [...this.state.changeArr,quality_rank.payload]
+    });
+  }
+  fetchData = (value: any) => { 
+    console.log("输入了；",value)
+    
+  }
+
+
+ //增加对比
+  addContrast = () => {
+    // const { shor_name } = this.state.financial_global
+  let shortName = this.state.changeArr.map((item:any)=>item.short_name)
+  console.log(shortName)
+  Modal.info({
+    // title: '增加对比<em></em>',
+    width: 540,
+    visible: true,
+    icon: "",
+    className: "addContrast",
+    okText:"确定",
+    content: (
+      <div>
+        <h2>增加对比</h2>
+        <h5>搜索公司进行对比</h5>
+        <Select
+          mode="multiple"
+          style={{ width: '100%' }}
+          placeholder="Please select"
+          defaultValue={shortName}
+          notFoundContent={this.state.fetching ? <Spin size="small" /> : null}
+          filterOption={false}
+          onSearch={this.fetchData}
+          onChange={this.handleChange}
+        >
+          {codeList.map(item => <Option key={item}>{item}</Option>)}
+        </Select>
+      </div>
+    ),
+    onOk() {},
+  });
+}
 
   render() {
     const {getFieldDecorator,isFieldTouched,getFieldError,getFieldsError} = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-    const { scoreTitle, more, company_logo, compare, data} = this.state
+    const { scoreTitle, more, company_logo, compare, data,changeArr} = this.state
+    console.log(changeArr)
     if (JSON.stringify(data) !== "{}") {
-      const { financialGlobal, financialQualityRank, financialReturn, financialAbility: { profitability, solvency, operating, currency, growth }, financialEvent } = data
+      const { financial_global, quality_rank, financial_return, financial_ability: { profitability, solvency, operating, currency, growth }, financial_event } = data
+      
       return (
+        
         <div className="risk-container">
           <div className="search">
             <Form onSubmit={this.handleSubmit}>
@@ -502,28 +603,28 @@ class riskProfile extends Component<any, any> {
               <Card bordered={false} className="risk-info">
                 <div className="logo">
                   <img src={company_logo} />
-                  <h4>{financialGlobal.shor_name}</h4>
+                  <h4>{financial_global.shor_name}</h4>
                 </div>
                 <div className="risk-info_inner">
                   <Paragraph ellipsis={{ rows: 2, expandable: true }}>
-                    {financialGlobal.description}
+                    {financial_global.description}
                   </Paragraph>
                 </div>
                 <ul className="risk-info_plate clearfloat">
                   <li>
-                    <h4>{financialGlobal.code}</h4>
+                    <h4>{financial_global.code}</h4>
                     <h5>股票代码</h5>
                   </li>
                   <li>
-                    <h4>{financialGlobal.sector}</h4>
+                    <h4>{financial_global.sector}</h4>
                     <h5>所属板块</h5>
                   </li>
                   <li>
-                    <h4>{financialGlobal.list_date}</h4>
+                    <h4>{financial_global.list_date}</h4>
                     <h5>上市日期</h5>
                   </li>
                   <li>
-                    <h4 className="red">{financialGlobal.risk_count}</h4>
+                    <h4 className="red">{financial_global.risk_count}</h4>
                     <h5>
                       <Link to="">全年财务风险数量</Link>
                     </h5>
@@ -543,7 +644,7 @@ class riskProfile extends Component<any, any> {
                 <Row>
                   <Col md={12} lg={12} xl={10} className="radar">
                     <EchartsWrapper
-                      option={OverviewOption(financialGlobal)}
+                      option={OverviewOption(financial_global)}
                       style={{ height: 360 }}
                     />
                   </Col>
@@ -552,23 +653,23 @@ class riskProfile extends Component<any, any> {
                       <div className="top-item">
                         <span>财务风险等级：</span>
                         <span className="em-list">
-                          <em>{financialGlobal.company.risk_level == '无风险' ? <i>无风险</i> : null}</em>
-                          <em>{financialGlobal.company.risk_level == '低风险' ? <i>低风险</i> : null}</em>
-                          <em>{financialGlobal.company.risk_level == '高风险' ? <i>高风险</i> : null}</em>
+                          <em>{financial_global.company.risk_level == '无风险' ? <i>无风险</i> : null}</em>
+                          <em>{financial_global.company.risk_level == '低风险' ? <i>低风险</i> : null}</em>
+                          <em>{financial_global.company.risk_level == '高风险' ? <i>高风险</i> : null}</em>
                         </span>
                       </div>
                       <div className="top-item">
                         <span>风险诊断：</span>
-                        <span className="oneEllipsis">{financialGlobal.company.risk_diagnosis}</span>
+                        <span className="oneEllipsis">{financial_global.company.risk_diagnosis}</span>
                       </div>
                       <div className="top-item">
                         <span>财务综合评分：</span>
-                        <span>{financialGlobal.company.risk_score}</span>
+                        <span>{financial_global.company.risk_score}</span>
                       </div>
                     </div>
                     <ul className="abilityList clearfloat">
                       {
-                        financialGlobal.company.company_score.map((item: any, key: any) => <li key={key}>
+                        financial_global.company.company_score.map((item: any, key: any) => <li key={key}>
                           <Icons type={score_icon[key]} className={score_icon[key]} />
                           <span className="title">{item.name}: </span>
                           <span className="value">{item.score}</span>
@@ -590,7 +691,7 @@ class riskProfile extends Component<any, any> {
                 bordered={false}
               >
                 <EchartsWrapper
-                  option={historyOption(financialGlobal.risk_trend)}
+                  option={historyOption(financial_global.risk_trend)}
                   style={{ height: 330 }}
                 />
               </Card>
@@ -600,11 +701,11 @@ class riskProfile extends Component<any, any> {
                 className="risk-zpm"
                 title="总排名"
                 bordered={false}
-                extra={<button className="btn-default"><Icons type='iconbtn_add' className='iconbtn_add' />增加对比</button>}
+                extra={<button className="btn-default" onClick={this.addContrast}><Icons type='iconbtn_add' className='iconbtn_add' />增加对比</button>}
               >
                 <div className="tip">{compare}</div>
                 <EchartsWrapper
-                  option={rankOption(financialQualityRank)}
+                  option={rankOption(changeArr)}
                   style={{ height: 360 }}
                 />
               </Card>
@@ -618,7 +719,7 @@ class riskProfile extends Component<any, any> {
               >
                 <div className="tip">{compare}</div>
                 <EchartsWrapper
-                  option={incomeOption(financialReturn)}
+                  option={incomeOption(financial_return)}
                   style={{ height: 360 }}
                 />
               </Card>
@@ -734,7 +835,7 @@ class riskProfile extends Component<any, any> {
               >
                 <ul className="ul-list">
                   {
-                    financialEvent.risk_event.slice(0, 4).map((item: any, idx: any) => <li key={idx}>{this.tipRisk(item.risk_level)}<a href="#">{item.title}</a><time>{item.date}</time></li>)
+                    financial_event.risk_event.slice(0, 4).map((item: any, idx: any) => <li key={idx}>{this.tipRisk(item.risk_level)}<a href="#">{item.title}</a><time>{item.date}</time></li>)
                   }
                 </ul>
               </Card>
@@ -748,7 +849,7 @@ class riskProfile extends Component<any, any> {
               >
                 <ul className="img-list">
                   {
-                    financialEvent.report.slice(0, 5).map((item: any, idx: any) => <li key={idx}><a href="#" className="img_caibao">{item.title.slice(0, 8)}</a><a href="#">{item.title}</a><time>{item.pub_date}</time></li>)
+                    financial_event.report.slice(0, 5).map((item: any, idx: any) => <li key={idx}><a href="#" className="img_caibao">{item.title.slice(0, 8)}</a><a href="#">{item.title}</a><time>{item.pub_date}</time></li>)
                   }
                 </ul>
               </Card>
@@ -762,16 +863,16 @@ class riskProfile extends Component<any, any> {
   }
 }
 const WrapSearch = Form.create()(riskProfile);
-const mapStateProps = (state: any) => {
-  return {
-    financialGlobal: state.financialGlobal.results,
-    financialQualityRank: state.financialQualityRank.results,
-    financialReturn: state.financialReturn.results,
-    financialAbility: state.financialAbility.results,
-    financialEvent: state.financialEvent.results,
-  }
-}
-const mapDispatchToProps = {}
-export default connect(mapStateProps)(WrapSearch)
+// const mapStateProps = (state: any) => {
+//   return {
+//     financial_global: state.financialGlobal.results,
+//     financialQualityRank: state.financialQualityRank.results,
+//     financialReturn: state.financialReturn.results,
+//     financialAbility: state.financialAbility.results,
+//     financialEvent: state.financialEvent.results,
+//   }
+// }
+// const mapDispatchToProps = {}
+// export default connect(mapStateProps)(WrapSearch)
 
-// export default WrapSearch;
+export default WrapSearch;

@@ -45,7 +45,7 @@ const session = {
 const arrAverage = (arr: any) => arr.reduce((a: number, b: number) => a + b, 0) / arr.length
 
 // 保留2位小数 的百分数
-const keepTwo = (value: number) => Number((value*100).toFixed(2))
+const keepTwo = (value: number) => Number((value).toFixed(2))
 
 export { 
     local,
