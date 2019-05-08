@@ -9,20 +9,23 @@ import Icons from '../components/Icons';
 const { Sider } = Layout
 const { Item } = Menu
 const logo = '/logo.png'
+
 export default class Header extends React.Component<any, any> {
     public inter: any
 
     constructor(props: any) {
         super(props)
         this.state = {
-            breadcrumb: document.title === '财务分析系统' ? '首页' : `首页 > ${document.title}`,
-            username: "Admin"
+            breadcrumb: document.title === '财务分析系统' ? '<a href="/">首页</a>' : `首页 > ${document.title}`,
+            username: "Admin",
+            pathSnippets: null,
+            extraBreadcrumbItems: null,
         }
     }
-
+    
     componentDidMount () {
         this.inter = setInterval(() => {
-            const newBreadcrumb = document.title === '财务分析系统' ? '首页' : `首页 > ${document.title}`
+            const newBreadcrumb = document.title === '财务分析系统' ? '<a href="/">首页</a>' : `首页 > ${document.title}`
             if (newBreadcrumb !== this.state.breadcrumb) {
                 this.setState({
                     breadcrumb: newBreadcrumb,
@@ -30,7 +33,7 @@ export default class Header extends React.Component<any, any> {
             }
         }, 100)
     }
-
+    
     componentWillUnmount () {
         if (this.inter) {
             clearInterval(this.inter)
@@ -52,9 +55,9 @@ export default class Header extends React.Component<any, any> {
                         <a href="javascript:;"><Icons type='iconlogout' /> 退出</a>
                     </div>
                 </header>
-                <div className="nav_path">
+                {/* <div className="nav_path">
                     <span>当前位置：</span>{this.state.breadcrumb}
-                </div>
+                </div> */}
             </div>
         )
     }

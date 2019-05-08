@@ -1,13 +1,16 @@
-import { Card, Col, Divider, Form, Icon, Input, Row, Select, Statistic, Tabs } from 'antd';
+import { Button, Card, Col, Divider, Form, Icon, Input, Row, Select, Statistic, Tabs } from 'antd';
 import axios from 'axios';
+import qs from 'querystring';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 // import { getData } from '../../actions';
-import { riskEvents, riskHistory } from '../../api';
+import { companySearch, existApi, riskEvents, riskHistory } from '../../api';
 import EchartsWrapper from '../../components/EchartsWrapper';
 import Icons from '../../components/Icons';
+import Path from '../../components/Path';
+import { session } from '../../utils';
 
 function hasErrors(fieldsError: any) {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
@@ -27,7 +30,8 @@ const getOption = (val: any) => {
         fontSize: "14px",
         color: '#6B798E',
       },
-      top:'20px'
+      top:'20px',
+      left:"-5px",
     },
     tooltip : {
       trigger: 'axis',
@@ -101,6 +105,7 @@ const getOption = (val: any) => {
 const img = {
   company_logo:"/images/zhongxin_logo.png"
 }
+const headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
 class Home extends Component<any, any> {
   constructor(props: any) {
@@ -111,6 +116,8 @@ class Home extends Component<any, any> {
       currentYear: 'this_year',
       risk_events: {},
       risk_history: {},
+      prefix_match: [],
+      isExist: false, 
     }
   }
   async componentDidMount() {
@@ -129,12 +136,62 @@ class Home extends Component<any, any> {
       data:risk_history.payload['所有']
     })
   }
-  handleSubmit = (e: any) => {
+  // 实时校验
+  checkConfirm = async (rule:any,value: any, callback: any) =>{
+    let req:any = qs.stringify({
+      "company": value
+    })
+  if (value) { 
+    let results = await axios.post(existApi, req, {headers})
+    .then(res => res.data)
+    .catch(error => {
+        console.log(error);
+    });
+    console.log(results)
+    if (results.success) {
+      results = results.payload
+      if(results.prefix_match)
+      this.setState({
+        prefix_match: results.prefix_match,
+        // exact_match: results.exact_match
+      })
+    }
+  }
+  callback();
+  }
+  //输入公司名称 触发
+  inputChange = (e:any) => { 
+    session.removeAll()
+    this.setState({
+      ...this.state,
+      isExist:false
+    })
+  }
+  handleSubmit =  (e: any) => {
     e.preventDefault();
-    this.props.form.validateFields((err: any, values: any) => {
+    this.props.form.validateFields( async (err: any, values: any) => {
       if (!err) {
+        const { stk_code } = values
+        const { prefix_match,isExist } = this.state
+        if (prefix_match.indexOf(stk_code)) {
+          this.setState({
+            ...this.state,
+            isExist: true,
+          });
+        } else { 
+          session.set("codeAndYear", {stk_code:values.stk_code,year:values.year})
+          const req = qs.stringify(values)        
+          if (!err) {
+            // this.props.getData(analysis_all, req)
+            this.props.history.push({ pathname: "/risk_monitor", state:values})
+          }
+        }
+
         console.log("formValues: ", values);
-        // this.props.history.push(`/search_list?q=${values.search}`)
+        let risk_events = await axios.post(companySearch, qs.stringify(values)).then((res)=> res.data).catch((error:any)=> {
+          　　alert(error);
+          });
+        this.props.history.push({ pathname: `/market/riskProfile`, state: values })
       }
     });
   };
@@ -194,27 +251,42 @@ class Home extends Component<any, any> {
   render() {
     const {getFieldDecorator,isFieldTouched,getFieldError,getFieldsError} = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-    const {data,risk_events: { company_risk_rank, industry_risk_rank },risk_history} = this.state
+    const {data,risk_events: { company_risk_rank, industry_risk_rank },risk_history,prefix_match,isExist} = this.state
     if (JSON.stringify(data) !== "{}") { 
       const trade = Object.keys(risk_history) //获取所有行业名称
-
       return (
         <div className="market">
+          <Path path={this.props.history}/>
           <div className="search">
             <Form onSubmit={this.handleSubmit}>
               <Form.Item
                 // validateStatus={searchError ? 'error' : ''}
                 help={searchError || ""}
               >
-                {getFieldDecorator("search", {
+                {getFieldDecorator("company", {
                   rules: [
-                    {
-                      required: false,
-                      message: "请输入公司名字，代码或简称"
-                    }
+                    {required: false,message: "请输入公司名字，代码或简称"},
+                    { validator: this.checkConfirm },
                   ]
-                })(<Input placeholder="请输入公司名字，代码或简称" />)}
-                <button className="btn-default">搜索</button>
+                })(
+                  <div className={isExist ? 'exact_match' : ''}>
+                    <Input list="lists" allowClear placeholder="请输入公司名字，代码或简称" onChange={this.inputChange} />
+                    {
+                      prefix_match.length > 0
+                      ?
+                      <datalist id="lists">
+                        {
+                          prefix_match.map((item:any,idx:any)=><option key={idx} value={item} />)
+                        }
+                      </datalist>
+                      : null
+                    }
+                    {
+                      isExist ? <div className="ant-form-explain">请输入正确的公司名称／股票代码／简称</div> : null
+                    }
+                  </div>
+                )}
+                <Button className="btn-default">搜索</Button>
               </Form.Item>
             </Form>
           </div>
@@ -296,7 +368,7 @@ class Home extends Component<any, any> {
                   {company_risk_rank.map((item: any, idx: any) => (
                     <li key={idx}>
                       <span className="id">{idx + 1}. </span>
-                      <img src={img.company_logo} />
+                      {/* <img src={img.company_logo} /> */}
                       <span className="title">{item.name}</span>
                       <span className="number">
                         <Icons type="iconhome_rank_increase" />

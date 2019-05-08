@@ -7,6 +7,7 @@
     "@types/history": "^4.7.2",
     "@types/jest": "23.3.10",
     "@types/lodash": "^4.14.123",
+    "@types/mockjs": "^1.0.2",
     "@types/node": "10.12.12",
     "@types/qs": "^6.5.1",
     "@types/react": "",
@@ -20,6 +21,7 @@
     "echarts-for-react": "^2.0.15-beta.0",
     "history": "^4.7.2",
     "lodash": "^4.17.11",
+    "mockjs": "^1.0.1-beta3",
     "node-sass": "^4.11.0",
     "qs": "^6.6.0",
     "react": "^16.6.3",
@@ -34,7 +36,7 @@
     "typescript": "3.2.1"
   },
   "scripts": {
-    "start": " PORT=5010 react-scripts start",
+    "start": " PORT=5001 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

@@ -69,12 +69,13 @@ const Pages: any[] = [
     // },
     {
         path: '/',
-        component: b((s: any) => import('./pages/market/').then(l(s)), '首页-大盘财务行情', true),
+        component: b((s: any) => import('./pages/market/').then(l(s)), '大盘财务行情', true),
     },
     {
         path: '/market',
         component: b((s: any) => import('./pages/market').then(l(s)), '大盘财务行情', true),
     },
+    
     {
         path: '/knowledge',
         component: b((s: any) => import('./pages/knowledge').then(l(s)), '知识图谱', true),
@@ -92,6 +93,18 @@ const Pages: any[] = [
         component: b((s: any) => import('./pages/market/riskDetails').then(l(s)), '风险详情', true),
     },
     {
+        path: '/list',
+        component: b((s: any) => import('./pages/list').then(l(s)), '公告列表', true),
+    },
+    {
+        path: '/list/details',
+        component: b((s: any) => import('./pages/list/details').then(l(s)), '公告详情', true),
+    },
+    {
+        path: '/list/details/:id',
+        component: b((s: any) => import('./pages/list/details').then(l(s)), '公告详情', true),
+    },
+    {
         path: '/login',
         component: b((s: any) => import('./pages/login').then(l(s)), '用户登录', true),
     },
@@ -99,7 +112,6 @@ const Pages: any[] = [
         path: '/user',
         component: b((s: any) => import('./pages/user').then(l(s)), '用户设置', true),
     },
-    
 
 ]
 

@@ -1,6 +1,6 @@
 import {
-    Button, Card, Col, Divider, Form, Icon, Input, Modal, Row, Select, Spin, Table, Tabs, Tooltip,
-    Typography
+    Button, Card, Checkbox, Col, Divider, Form, Icon, Input, message, Modal, Row, Select, Spin,
+    Table, Tabs, Tooltip, Typography
 } from 'antd';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
@@ -11,11 +11,13 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 import {
-    financialAbility, financialEvent, financialGlobal, financialQualityRank, financialReturn
+    companySearch, financialAbility, financialEvent, financialGlobal, financialQualityRank,
+    financialReturn
 } from '../../api';
 import EchartsWrapper from '../../components/EchartsWrapper';
 import Icons from '../../components/Icons';
-import { keepTwo } from '../../utils';
+import Path from '../../components/Path';
+import { keepTwo, tipRisk } from '../../utils';
 
 function hasErrors(fieldsError: any) {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
@@ -24,7 +26,7 @@ function hasErrors(fieldsError: any) {
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 const { Paragraph } = Typography;
-
+const CheckboxGroup = Checkbox.Group;
 //echart 配置项
 //财务整体概况--数据
 const OverviewOption = (value: any) => {
@@ -32,7 +34,7 @@ const OverviewOption = (value: any) => {
   const indicator = value.company.company_score.map((item:any)=>item.name)              // 获取各个维度的name
   const company_data = value.company.company_score.map((item:any)=>Number(item.score))  //获取公司score 值
   const industry_data = value.industry.map((item:any)=>Number(item.score))              //获取行业平均score 值
-  const max = Math.max.apply(null, company_data);                                       //获取数组中的最大值
+  // const max = Math.max.apply(null, company_data);                                       //获取数组中的最大值
   const option = {
     tooltip: {},
     legend: {
@@ -59,7 +61,7 @@ const OverviewOption = (value: any) => {
         indicator.forEach((element:any) => {
           arr.push({
             name: element,
-            max
+            max:100
           })
         });
         return arr
@@ -75,7 +77,7 @@ const OverviewOption = (value: any) => {
         },
         data : [
           {
-            name : name[0],
+            // name : name[0],
             value : company_data,
             itemStyle: {
               normal: {
@@ -296,11 +298,12 @@ const rankOption = (value: any) => {
   return option;
 };
 // 业绩收益
-const incomeOption = (value: any) => {
-  const name = [value.short_name, '行业平均'] //获取 对比的名称
+const incomeOption = (value: any,trade:any) => {
+  const name = [value.short_name, trade] //获取 对比的名称
   const date = value.history_score.map((item:any)=>item.date) //时间
   const data = value.history_score.map((item:any)=>item.value) // 获取数据
-  const industry_data = value.industry_score.map((item:any)=>item.value) // 获取数据
+  // const industry_data = value.industry_score.map((item:any)=>item.value) // 获取数据
+  const industry_data = value.industry_score[trade].map((item:any)=>item.value) // 获取数据
   const option = {
     grid: {
       top: "45px",
@@ -412,8 +415,6 @@ function getColor(value: any) {
   return color
 }
 
-
-
 const columns = [
   {
     title: '指标',
@@ -443,7 +444,6 @@ const columns = [
 ];
 const score_icon = ["icongeneral_score_profit", "icongeneral_score_debt", "icongeneral_score_operate", "icongeneral_score_grow", "icongeneral_score_cash"]
 
-const codeList = ["000001","000002","000003","000004","000005","000006","000007"]
 
 class riskProfile extends Component<any, any> {
   constructor(props: any) {
@@ -454,20 +454,29 @@ class riskProfile extends Component<any, any> {
     this.state = {
       // visible:true,
       scoreTitle: "评分",
+      trade: ["所有","金融","科技"],
       more:"查看详情",
       compare: "财务状况好于67%的企业",
       company_logo: "/images/zhongxin_logo_l.png",
       data: {},
-      changeArr: [],
-      selectData: [],
-      selectValue: [],
+      changeArr: [],//增加行业 默认数据
+      checkedVal: [],
+      selectArr: [],
+      selectVal: "所有", //更改行业 选择的值
       fetching: false,
+      checkBoxNum:1,
     };
   }
-
+  componentWillMount() { 
+    
+  }
   async componentDidMount() {
     // To disabled submit button at the beginning.
+    console.log(this.props.history.location.state)
     this.props.form.validateFields();
+      // let risk_events = await axios.post(companySearch, qs.stringify({"company":"000001"})).then((res)=> res.data).catch((error:any)=> {
+      // 　　alert(error);
+      // });
       let financial_global = await axios.get(financialGlobal).then((res)=> res.data).catch((error:any)=> {
       　　alert(error);
       });
@@ -496,90 +505,163 @@ class riskProfile extends Component<any, any> {
       changeArr : [financial_return.payload]
     })
   }
+  //顶部搜索功能
   handleSubmit = (e: any) => {
     e.preventDefault();
     this.props.form.validateFields((err: any, values: any) => {
       if (!err) {
         console.log("formValues: ", values);
+        this.props.history.push(`/market/riskProfile`)
       }
     });
   };
-  //根据分数 判断显示什么风险的图标
-  tipRisk = (value: any) => { 
-    let str
-    if (value == '无风险') { 
-      str = <Icons type='iconannoucement_risk_n' className='iconannoucement_risk_n' />
-    }else if (value == '低风险') { 
-      str = <Icons type='iconannoucement_risk_l' className='iconannoucement_risk_l' />
-    }else if (value == '高风险') { 
-      str = <Icons type='iconannoucement_risk_h' className='iconannoucement_risk_h' />
+ 
+    // 实时校验
+  checkConfirm = async (rule:any,value: any, callback: any) =>{
+    let req:any = qs.stringify({
+      "name_prefix": value
+    })
+    if (value) { 
+      // let results = await axios.post(existApi, req, {headers})
+      // .then(res => res.data)
+      // .catch(error => {
+      //     console.log(error);
+      // });
+
+      // if (results.success) {
+      //   results = results.data.response
+      //   if(results.prefix_match)
+      //   this.setState({
+      //     prefix_match: results.prefix_match,
+      //     // exact_match: results.exact_match
+      //   })
+      // }
     }
-    return str
+    callback();
   }
 //select change
-  handleChange = async (value: any)=> {
-    console.log(`selected ${value}`);
-    let req = qs.stringify({
-      "code":"000002"
-    })
-    let quality_rank = await axios.post(financialQualityRank,req).then((res)=> res.data).catch((error:any)=> {
-      　　alert(error);
-    });
+  handleChange = (e: any) => {
+    console.log(`selected ${e.target.value}`);
     this.setState({
-      changeArr : [...this.state.changeArr,quality_rank.payload]
+      inputVal: e.target.value
     });
   }
-  fetchData = (value: any) => { 
-    console.log("输入了；",value)
-    
-  }
-
-
+  
+  
+  
  //增加对比
   addContrast = () => {
-    // const { shor_name } = this.state.financial_global
-  let shortName = this.state.changeArr.map((item:any)=>item.short_name)
-  console.log(shortName)
-  Modal.info({
-    // title: '增加对比<em></em>',
-    width: 540,
-    visible: true,
-    icon: "",
-    className: "addContrast",
-    okText:"确定",
-    content: (
-      <div>
-        <h2>增加对比</h2>
-        <h5>搜索公司进行对比</h5>
-        <Select
-          mode="multiple"
-          style={{ width: '100%' }}
-          placeholder="Please select"
-          defaultValue={shortName}
-          notFoundContent={this.state.fetching ? <Spin size="small" /> : null}
-          filterOption={false}
-          onSearch={this.fetchData}
-          onChange={this.handleChange}
-        >
-          {codeList.map(item => <Option key={item}>{item}</Option>)}
-        </Select>
-      </div>
-    ),
-    onOk() {},
-  });
+    let shortName:any = this.state.changeArr.map((item: any) => item.short_name)
+    Modal.info({
+      width: 540,
+      visible: false,
+      icon: "",
+      className: "addContrast",
+      okText:"确定",
+      content: (
+        <div>
+          <h2>增加对比</h2>
+          <h5>搜索公司进行对比</h5>
+          <div className="content">
+            <p>已对比的公司</p>
+            <Checkbox.Group onChange={this.onChange} defaultValue={shortName}>
+              {
+                shortName.map((i: any,idx:any) => <Checkbox key={idx} disabled={idx == 0? true:false} value={i} checked>{i}</Checkbox>)
+              }
+            </Checkbox.Group> 
+            <div className="item">
+              <Input
+                placeholder='请输入公司名字，代码或简称'
+                onChange={this.handleChange}
+              />
+              <Button onClick={this.onAdd}>增加</Button>
+            </div>
+          </div>
+        </div>
+      ),
+      onOk: ()=>{ }
+    });
+  }
+  //按增加 / Modal 确定的回调
+  onAdd = async () => {
+    let { inputVal } = this.state
+    console.log("inputVal",inputVal == "")
+    let req = qs.stringify({
+      "code": inputVal,
+      "short_name": "万科A"
+    })
+    if (inputVal == "") {
+      alert('请输入公司名字，代码或简称')
+      message.info('请输入公司名字，代码或简称');
+    } else if (inputVal.length > 2) { 
+      let quality_rank = await axios.post(financialQualityRank,req).then((res)=> res.data).catch((error:any)=> {
+        　alert(error);
+      });
+      this.setState({
+        changeArr : [...this.state.changeArr,quality_rank.payload]
+      });
+    }
+  }
+  
+onChange = (checkedVal: any) => {
+  let { changeArr } = this.state
+  let b = this.state.checkedVal
+  let intersection = changeArr.filter((v:any) => checkedVal.includes(v.short_name))
+  console.log("intersection",intersection,"checkedVal",checkedVal)
+  this.setState({
+    checkedVal,
+    changeArr:intersection
+  })
 }
+ //更改行业
+  editContrast = () => {
+    const {data: { financial_return},selectVal} = this.state
+    let trade = Object.keys(financial_return.industry_score)
+    Modal.info({
+      width: 540,
+      visible: true,
+      icon: "",
+      className: "addContrast",
+      okText:"确定",
+      content: (
+        <div>
+          <h2>更改行业</h2>
+          <h5>重新选择行业进行对比</h5>
+          <Select
+            showSearch
+            optionFilterProp="children"
+            onChange={this.changeContrast}
+            defaultValue={trade[0]}
+            // onFocus={handleFocus}
+            // onBlur={handleBlur}
+            filterOption={(input:any, option:any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+          >
+            {
+              trade.map((item: any, idx: any) => <Option key={idx} value={item}>{item}</Option>)
+            }
+          </Select>
+        </div>
+      ),
+      onOk() { }
+    });
+  }
+  changeContrast = (e: any) => {
+    console.log(`selected ${e}`);
+    this.setState({
+      selectVal: e,
+    });
+  }
 
   render() {
     const {getFieldDecorator,isFieldTouched,getFieldError,getFieldsError} = this.props.form;
     const searchError = isFieldTouched("search") && getFieldError("search");
-    const { scoreTitle, more, company_logo, compare, data,changeArr} = this.state
-    console.log(changeArr)
+    const { scoreTitle, more, company_logo, compare, data,changeArr,selectVal} = this.state
     if (JSON.stringify(data) !== "{}") {
       const { financial_global, quality_rank, financial_return, financial_ability: { profitability, solvency, operating, currency, growth }, financial_event } = data
-      
       return (
         
         <div className="risk-container">
+          <Path path={this.props.history}/>
           <div className="search">
             <Form onSubmit={this.handleSubmit}>
               <Form.Item
@@ -602,7 +684,7 @@ class riskProfile extends Component<any, any> {
             <Col span={6}>
               <Card bordered={false} className="risk-info">
                 <div className="logo">
-                  <img src={company_logo} />
+                  {/* <img src={company_logo} /> */}
                   <h4>{financial_global.shor_name}</h4>
                 </div>
                 <div className="risk-info_inner">
@@ -645,7 +727,7 @@ class riskProfile extends Component<any, any> {
                   <Col md={12} lg={12} xl={10} className="radar">
                     <EchartsWrapper
                       option={OverviewOption(financial_global)}
-                      style={{ height: 360 }}
+                      style={{ height: 330 }}
                     />
                   </Col>
                   <Col md={12} lg={12} xl={14} className="radar-right">
@@ -677,7 +759,7 @@ class riskProfile extends Component<any, any> {
                       }
                     </ul>
                     <div className="foot">
-                      <a href="#" className="btn-more">{more}</a>
+                      <Link to="/market/riskDetails" className="btn-more">{more}</Link>
                     </div>
                   </Col>
                 </Row>
@@ -701,13 +783,22 @@ class riskProfile extends Component<any, any> {
                 className="risk-zpm"
                 title="总排名"
                 bordered={false}
-                extra={<button className="btn-default" onClick={this.addContrast}><Icons type='iconbtn_add' className='iconbtn_add' />增加对比</button>}
+                extra={<Button className="btn-default" onClick={this.addContrast}><Icons type='iconbtn_add' className='iconbtn_add' />增加对比</Button>}
               >
                 <div className="tip">{compare}</div>
-                <EchartsWrapper
-                  option={rankOption(changeArr)}
-                  style={{ height: 360 }}
-                />
+                {
+                  changeArr.length>0 ? 
+                    <EchartsWrapper
+                    option={rankOption(changeArr)}
+                    style={{ height: 360 }}
+                    />
+                    : 
+                    <EchartsWrapper
+                    // option={rankOption(changeArr)}
+                    style={{ height: 360 }}
+                    />
+                }
+                
               </Card>
             </Col>
             <Col span={12}>
@@ -715,11 +806,14 @@ class riskProfile extends Component<any, any> {
                 className="risk-yjsy"
                 title="业绩收益"
                 bordered={false}
-                extra={<button className="btn-default"><Icons type='iconbtn_edit' className='iconbtn_edit' />更改行业</button>}
+                extra={<Button className="btn-default"
+                  onClick={this.editContrast}
+                ><Icons type='iconbtn_edit' className='iconbtn_edit' />更改行业</Button>}
               >
                 <div className="tip">{compare}</div>
+                {/* 待接口增加返回的数据 后再显示 */}
                 <EchartsWrapper
-                  option={incomeOption(financial_return)}
+                  option={incomeOption(financial_return,selectVal)}
                   style={{ height: 360 }}
                 />
               </Card>
@@ -831,11 +925,11 @@ class riskProfile extends Component<any, any> {
                 className="risk-sj"
                 title="近期风险事件"
                 bordered={false}
-                extra={<a href="#">查看更多</a>}
+                extra={<Link to="/list">查看更多</Link>}
               >
                 <ul className="ul-list">
                   {
-                    financial_event.risk_event.slice(0, 4).map((item: any, idx: any) => <li key={idx}>{this.tipRisk(item.risk_level)}<a href="#">{item.title}</a><time>{item.date}</time></li>)
+                    financial_event.risk_event.slice(0, 4).map((item: any, idx: any) => <li key={idx}>{tipRisk(item.risk_level)}<a href="#">{item.title}</a><time>{item.date}</time></li>)
                   }
                 </ul>
               </Card>
@@ -845,7 +939,7 @@ class riskProfile extends Component<any, any> {
                 className="risk-report"
                 title="企业财报"
                 bordered={false}
-                extra={<a href="#">查看更多</a>}
+                extra={<Link to="/list">查看更多</Link>}
               >
                 <ul className="img-list">
                   {

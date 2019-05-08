@@ -1,0 +1,74 @@
+
+.list-top{
+    .ant-form{
+        .ant-form-item{
+            // width:50%;
+            // float:left;
+            .ant-form-item-required::before{
+                content: '';
+            }
+            .range-picker{
+                .ant-calendar-picker{
+                    
+                }
+            }
+        }
+        input{
+            height:40px;line-height: 40px;
+            border-color: #BEC8D3;
+
+        }
+        .ant-calendar-picker{
+            width: 100%;
+            &>div{
+                top:45px !important;
+                left:20% !important;
+            }
+            .ant-calendar-picker-input{
+                padding: 0px 10px;
+                height:40px;
+                line-height: 40px;
+                border-color: #BEC8D3;
+                border-radius:2px;
+                overflow: hidden;
+                input{
+                    border: 0;
+                    height:36px;
+                }
+            }
+        }
+        .ant-select-selection--single{
+            height:40px;
+            border-color: #BEC8D3;
+            border-radius:2px;
+            .ant-select-selection__rendered{
+                line-height: 38px;
+            }
+        }
+        .ant-btn{
+            width:114px;
+            height:40px;
+            background:#2A5082;
+            border-color: #000;
+            border-radius:2px;
+        }
+    }
+}
+.list-bottom{
+    margin-top: 20px;
+    .ant-table-content{
+        
+        table{
+            tr{
+                th{
+                    text-align: left !important;
+                }
+                td{
+                    text-align: left !important;
+                    padding:10px 15px !important;
+                }
+            }
+        }
+    }
+}
+
